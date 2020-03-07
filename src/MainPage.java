@@ -8,7 +8,7 @@ class MainPage extends JFrame implements ActionListener {
     JButton SearchButton;
 
     public MainPage(String username){
-        super("Ð£Ô°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ ï¿½Ã»ï¿½: "+username+" ï¿½Ñµï¿½Â¼");
+        super("Ð£Ô°ÏÐÖÃÎïÆ·½»Ò× ÓÃ»§: "+username+" ÒÑµÇÂ¼");//ghghgh
         setSize(800,500);
         setLocationRelativeTo(null);
         setMenus();
@@ -17,8 +17,8 @@ class MainPage extends JFrame implements ActionListener {
         JPanel panel = new JPanel();
         //panel.setBackground(Color.blue);
         panel.setBounds(10,10,12,20);
-        SearchTextField = new JTextField("ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯");
-        SearchButton = new JButton("ï¿½ï¿½Ñ¯");
+        SearchTextField = new JTextField("ÊäÈëÒª¹ºÂòµÄÉÌÆ·Ãû³ÆÀ´²éÑ¯");
+        SearchButton = new JButton("²éÑ¯");
         panel.setLayout(new FlowLayout(FlowLayout.CENTER,50,0));
         panel.add(SearchTextField);
         panel.add(SearchButton);
@@ -27,31 +27,31 @@ class MainPage extends JFrame implements ActionListener {
         setVisible(true);
     }
 
-    JMenuItem item1Jmenu1 = new JMenuItem("ï¿½ï¿½ï¿½ï¿½ï¿½ì´°ï¿½ï¿½");
-    JMenuItem item1Jmenu2 = new JMenuItem("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ·");
-    JMenuItem part1_item2Jmenu2 = new JMenuItem("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í³ï¿½ï¿½");
-    JMenuItem part2_item2Jmenu2 = new JMenuItem("ï¿½é¿´ï¿½Ñ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ·");
-    JMenuItem item1Jmenu3 = new JMenuItem("ï¿½é¿´ï¿½ï¿½ï¿½ï³µ");
-    JMenuItem item2Jmenu3 = new JMenuItem("ï¿½é¿´ï¿½Ñ¹ï¿½ï¿½ï¿½ï¿½Ð±ï¿½");
+    JMenuItem item1Jmenu1 = new JMenuItem("´ò¿ªÁÄÌì´°¿Ú");
+    JMenuItem item1Jmenu2 = new JMenuItem("·¢²¼ÉÌÆ·");
+    JMenuItem part1_item2Jmenu2 = new JMenuItem("ÏúÊÛÇé¿öÍ³¼Æ");
+    JMenuItem part2_item2Jmenu2 = new JMenuItem("²é¿´ÒÑ·¢²¼µÄÉÌÆ·");
+    JMenuItem item1Jmenu3 = new JMenuItem("²é¿´¹ºÎï³µ");
+    JMenuItem item2Jmenu3 = new JMenuItem("²é¿´ÒÑ¹ºÂòÁÐ±í");
     public void setMenus(){
         JMenuBar bar = new JMenuBar();
-        JMenu jMenu1= new JMenu("Í¨ï¿½ï¿½");
-        JMenu jMenu2 = new JMenu("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
-        JMenu item2Jmenu2 = new JMenu("ï¿½Û³ï¿½ï¿½ï¿½ï¿½");
+        JMenu jMenu1= new JMenu("Í¨ÓÃ");
+        JMenu jMenu2 = new JMenu("ÎÒÊÇÂô¼Ò");
+        JMenu item2Jmenu2 = new JMenu("ÊÛ³öÇé¿ö");
         item2Jmenu2.add(part1_item2Jmenu2);
         item2Jmenu2.add(part2_item2Jmenu2);
-        JMenu jMenu3 = new JMenu("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
+        JMenu jMenu3 = new JMenu("ÎÒÊÇÂò¼Ò");
         jMenu1.add(item1Jmenu1);
         jMenu2.add(item1Jmenu2);
         jMenu2.add(item2Jmenu2);
         jMenu3.add(item1Jmenu3);
         jMenu3.add(item2Jmenu3);
-        //ï¿½ï¿½Ó²Ëµï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½
+        //Ìí¼Ó²Ëµ¥µ½²Ëµ¥Ìõ
         bar.add(jMenu1);
         bar.add(jMenu2);
         bar.add(jMenu3);
         setJMenuBar(bar);
-        //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½Â¼ï¿½
+        //¸ø¸÷¸ö²Ëµ¥Ìí¼Óµã»÷ÊÂ¼þ
         item1Jmenu1.addActionListener(this);
         item1Jmenu2.addActionListener(this);
         item1Jmenu3.addActionListener(this);
@@ -62,14 +62,14 @@ class MainPage extends JFrame implements ActionListener {
 
     JTable table;
     Object tableContent[][];
-    Object name[]={"ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½","ï¿½Û¸ï¿½","ï¿½Ç·ï¿½Îªï¿½ï¿½ï¿½ï¿½"};
+    Object name[]={"ÉÌÆ·Ãû³Æ","¼Û¸ñ","ÊÇ·ñÎªÅÄÂô"};
     public void getTable(){
-        //ï¿½ï¿½ï¿½Ùµï¿½
+        //£¨¼ÙµÄ
         tableContent = new Object[50][3];
         for(int i = 0;i<50;i++){
-           tableContent[i][0]="ï¿½ï¿½ï¿½Ü²ï¿½";
+           tableContent[i][0]="ºúÂÜ²·";
            tableContent[i][1]="3";
-           tableContent[i][2]="ï¿½ï¿½";
+           tableContent[i][2]="ÊÇ";
         }
         table = new JTable(tableContent,name);
         table.setRowHeight(30);
@@ -83,8 +83,8 @@ class MainPage extends JFrame implements ActionListener {
         System.out.println(e.getSource());
         if(e.getSource()==SearchButton){
             String searchStr = SearchTextField.getText();
-            //TODO:ï¿½ï¿½ï¿½ï¿½
+            //TODO:ËÑË÷
         }
-        //TODO:Ð´ï¿½ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½Äµï¿½ï¿½ï¿½Â¼ï¿½
+        //TODO:Ð´¸÷¸ö²Ëµ¥µÄµã»÷ÊÂ¼þ
     }
 }

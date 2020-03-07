@@ -11,33 +11,33 @@ public class Login extends JFrame implements ActionListener {
     String username,password;
 
     public Login() {
-        super("Ð£Ô°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½");
+        super("Ð£Ô°ÏÐÖÃÎïÆ·½»Ò×");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(300, 200);
         setLocationRelativeTo(null);
         setResizable(false);
         JPanel panel = new JPanel();
         add(panel);
-        JLabel userLabel = new JLabel("ï¿½Ã»ï¿½ï¿½ï¿½");
+        JLabel userLabel = new JLabel("ÓÃ»§Ãû");
         userText = new JTextField();
-        JLabel passLabel = new JLabel("ï¿½ï¿½ï¿½ï¿½");
+        JLabel passLabel = new JLabel("ÃÜÂë");
         passText = new JPasswordField(20);
-        loginButton = new JButton("ï¿½ï¿½Â¼");
+        loginButton = new JButton("µÇÂ¼");
         loginButton.addActionListener(this);
-        registerButton = new JButton("×¢ï¿½ï¿½");
+        registerButton = new JButton("×¢²á");
         registerButton.addActionListener(this);
         panel.setLayout(null);
-        //userLabelï¿½ï¿½ï¿½ï¿½
+        //userLabel´´½¨
         userLabel.setBounds(30, 30, 80, 25);
         panel.add(userLabel);
-        //passLabelï¿½ï¿½ï¿½ï¿½
+        //passLabel´´½¨
         passLabel.setBounds(30, 60, 80, 25);
         panel.add(passLabel);
         userText.setBounds(105, 30, 165, 25);
         panel.add(userText);
         passText.setBounds(105, 60, 165, 25);
         panel.add(passText);
-        //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½
+        //´´½¨µÇÂ¼´°¿Ú
         loginButton.setBounds(25, 100, 80, 25);
         panel.add(loginButton);
         registerButton.setBounds(190, 100, 80, 25);
@@ -49,8 +49,8 @@ public class Login extends JFrame implements ActionListener {
         if(e.getSource()==loginButton){
             username = userText.getText();
             password= passText.getPassword().toString();
-            //TODO:ï¿½Ð¶ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-            JOptionPane.showMessageDialog(null,"ï¿½ï¿½Â¼ï¿½É¹ï¿½ï¿½ï¿½","ï¿½ï¿½Ê¾",JOptionPane.NO_OPTION);
+            //TODO:ÅÐ¶ÏÓÃ»§ÃûºÍÃÜÂë
+            JOptionPane.showMessageDialog(null,"µÇÂ¼³É¹¦£¡","ÌáÊ¾",JOptionPane.NO_OPTION);
             setVisible(false);
             new MainPage(username).setVisible(true);
             dispose();
