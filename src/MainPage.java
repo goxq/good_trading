@@ -2,89 +2,180 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 class MainPage extends JFrame implements ActionListener {
+    JMenuBar bar;
+    JMenuItem item1Jmenu1;
+    JMenuItem item1Jmenu2;
+    JMenuItem part1_item2Jmenu2;
+    JMenuItem part2_item2Jmenu2;
+    JMenuItem item1Jmenu3;
+    JMenuItem item2Jmenu3;
     JTextField SearchTextField;
     JButton SearchButton;
+    JButton RefreshButton;
+    JTable table;
+    JPanel panel;
+    Object tableContent[][];
+    Object tableName[]={"å•†å“åç§°","ä»·æ ¼","å•†å“æ•°é‡","æ˜¯å¦æ‹å–"};
 
-    public MainPage(String username){
-        super("Ğ£Ô°ÏĞÖÃÎïÆ·½»Ò× ÓÃ»§: "+username+" ÒÑµÇÂ¼");//ghghgh
+    Dbstest dbstest;
+    Connection ct;
+    PreparedStatement ps;
+    ResultSet rs;
+
+    int count;//ç”¨æ¥æ¯æ¬¡åˆ·æ–°æ—¶è®°å½•è¡¨æ ¼çš„è¡Œæ•°
+    int index = 0;
+
+    User user1;
+
+    //æ„é€ å‡½æ•°æ¥å—Loginä¼ æ¥çš„User
+    public MainPage(User user2){
+        super("æ ¡å›­é—²ç½®äº¤æ˜“ç³»ç»Ÿ ç”¨æˆ·: "+user2.getUserID()+" å·²ç™»å½•");
+        user1 = user2;//æŠŠå…¨å±€å˜é‡user1ä½œä¸ºuser2çš„åˆ«å
+
         setSize(800,500);
         setLocationRelativeTo(null);
-        setMenus();
-        getTable();
 
-        JPanel panel = new JPanel();
-        //panel.setBackground(Color.blue);
-        panel.setBounds(10,10,12,20);
-        SearchTextField = new JTextField("ÊäÈëÒª¹ºÂòµÄÉÌÆ·Ãû³ÆÀ´²éÑ¯");
-        SearchButton = new JButton("²éÑ¯");
-        panel.setLayout(new FlowLayout(FlowLayout.CENTER,50,0));
-        panel.add(SearchTextField);
-        panel.add(SearchButton);
-        add(panel,BorderLayout.NORTH);
+        //è®¾ç½®èœå•
+        bar = new JMenuBar();
+        item1Jmenu1 = new JMenuItem("æ‰“å¼€èŠå¤©çª—å£");
+        item1Jmenu2 = new JMenuItem("å‘å¸ƒå•†å“");
+        part1_item2Jmenu2 = new JMenuItem("é”€å”®æƒ…å†µç»Ÿè®¡");
+        part2_item2Jmenu2 = new JMenuItem("æŸ¥çœ‹å·²å‘å¸ƒçš„å•†å“");
+        item1Jmenu3 = new JMenuItem("æŸ¥çœ‹è´­ç‰©è½¦");
+        item2Jmenu3 = new JMenuItem("æŸ¥çœ‹å·²è´­ä¹°åˆ—è¡¨");
 
-        setVisible(true);
-    }
-
-    JMenuItem item1Jmenu1 = new JMenuItem("´ò¿ªÁÄÌì´°¿Ú");
-    JMenuItem item1Jmenu2 = new JMenuItem("·¢²¼ÉÌÆ·");
-    JMenuItem part1_item2Jmenu2 = new JMenuItem("ÏúÊÛÇé¿öÍ³¼Æ");
-    JMenuItem part2_item2Jmenu2 = new JMenuItem("²é¿´ÒÑ·¢²¼µÄÉÌÆ·");
-    JMenuItem item1Jmenu3 = new JMenuItem("²é¿´¹ºÎï³µ");
-    JMenuItem item2Jmenu3 = new JMenuItem("²é¿´ÒÑ¹ºÂòÁĞ±í");
-    public void setMenus(){
-        JMenuBar bar = new JMenuBar();
-        JMenu jMenu1= new JMenu("Í¨ÓÃ");
-        JMenu jMenu2 = new JMenu("ÎÒÊÇÂô¼Ò");
-        JMenu item2Jmenu2 = new JMenu("ÊÛ³öÇé¿ö");
+        JMenu jMenu1= new JMenu("é€šç”¨");
+        JMenu jMenu2 = new JMenu("æˆ‘æ˜¯å–å®¶");
+        JMenu item2Jmenu2 = new JMenu("å”®å‡ºæƒ…å†µ");
         item2Jmenu2.add(part1_item2Jmenu2);
         item2Jmenu2.add(part2_item2Jmenu2);
-        JMenu jMenu3 = new JMenu("ÎÒÊÇÂò¼Ò");
+        JMenu jMenu3 = new JMenu("æˆ‘æ˜¯ä¹°å®¶");
         jMenu1.add(item1Jmenu1);
         jMenu2.add(item1Jmenu2);
         jMenu2.add(item2Jmenu2);
         jMenu3.add(item1Jmenu3);
         jMenu3.add(item2Jmenu3);
-        //Ìí¼Ó²Ëµ¥µ½²Ëµ¥Ìõ
+        //æ·»åŠ èœå•åˆ°èœå•æ¡
         bar.add(jMenu1);
         bar.add(jMenu2);
         bar.add(jMenu3);
         setJMenuBar(bar);
-        //¸ø¸÷¸ö²Ëµ¥Ìí¼Óµã»÷ÊÂ¼ş
+        //ç»™å„ä¸ªèœå•æ·»åŠ ç‚¹å‡»äº‹ä»¶
         item1Jmenu1.addActionListener(this);
         item1Jmenu2.addActionListener(this);
         item1Jmenu3.addActionListener(this);
         item2Jmenu3.addActionListener(this);
         part1_item2Jmenu2.addActionListener(this);
         part2_item2Jmenu2.addActionListener(this);
+
+        item1Jmenu2.setActionCommand("MenuOfAddGoods");
+
+
+        panel= new JPanel();
+        //panel.setBackground(Color.blue);
+        panel.setBounds(10,10,12,20);
+
+        SearchTextField = new JTextField("è¯·è¾“å…¥è¦æŸ¥è¯¢çš„å•†å“åç§°");
+        SearchButton = new JButton("æŸ¥è¯¢");
+        RefreshButton = new JButton("åˆ·æ–°");
+
+        RefreshButton.addActionListener(this);
+        RefreshButton.setActionCommand("RefreshButton");
+
+
+        panel.setLayout(new FlowLayout(FlowLayout.CENTER,50,0));
+        panel.add(SearchTextField);
+        panel.add(SearchButton);
+        panel.add(RefreshButton);
+        add(panel,BorderLayout.NORTH);
+
+        getTable();
+        setVisible(true);
     }
-
-    JTable table;
-    Object tableContent[][];
-    Object name[]={"ÉÌÆ·Ãû³Æ","¼Û¸ñ","ÊÇ·ñÎªÅÄÂô"};
     public void getTable(){
-        //£¨¼ÙµÄ
-        tableContent = new Object[50][3];
-        for(int i = 0;i<50;i++){
-           tableContent[i][0]="ºúÂÜ²·";
-           tableContent[i][1]="3";
-           tableContent[i][2]="ÊÇ";
+        dbstest = new Dbstest();
+        ct = dbstest.getConnection();
+        try{
+            ps = ct.prepareStatement("select count(id) from commodity");
+            rs = ps.executeQuery();
+            rs.next();
+            count = rs.getInt(1);
+            System.out.println(count);
         }
-        table = new JTable(tableContent,name);
+        catch (Exception exc){
+            exc.printStackTrace();
+        }
+        tableContent = new Object[count][4];
+        try{
+            index = 0;//æ¯æ¬¡åˆ·æ–°å‰indexæ¸…é›¶
+            ps = ct.prepareStatement("select name,price,nums,isAuction from commodity");
+            rs = ps.executeQuery();
+            while (rs.next()){
+                String name = rs.getString(1);
+                double price = rs.getDouble(2);
+                int nums = rs.getInt(3);
+                int Auction = rs.getInt(4);
+                tableContent[index][0] = name;
+                tableContent[index][1] = price;
+                tableContent[index][2] = nums;
+                if(Auction == 1)
+                    tableContent[index][3] = "æ‹å–";
+                else
+                    tableContent[index][3] = "ä¸æ‹å–";
+                index++;
+            }
+        }
+        catch (Exception exc){
+            exc.printStackTrace();
+        }
+        finally {
+            try{
+                if(rs!=null)
+                    rs.close();
+                if(ps!=null)
+                    ps.close();
+                if(ct!=null)
+                    ct.close();
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
+        table = new JTable(tableContent,tableName);
         table.setRowHeight(30);
+        getContentPane().removeAll();
         add(new JScrollPane(table),BorderLayout.CENTER);
-
-
+        add(panel,BorderLayout.NORTH);
+        setJMenuBar(bar);
+        validate();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println(e.getSource());
         if(e.getSource()==SearchButton){
             String searchStr = SearchTextField.getText();
-            //TODO:ËÑË÷
+            //TODO:æœç´¢
         }
-        //TODO:Ğ´¸÷¸ö²Ëµ¥µÄµã»÷ÊÂ¼ş
+        else if(e.getActionCommand().equals("RefreshButton")){
+            getTable();
+        }
+        else if(e.getActionCommand().equals("MenuOfAddGoods")){
+            System.out.println("ç‚¹äº†ä¸€ä¸‹");
+            new AddGoods(user1);
+        }
+        //TODO:å†™å„ä¸ªèœå•çš„ç‚¹å‡»äº‹ä»¶
+    }
+
+    public static void main(String[] args) {
+        User userInMainForTest = new User("admin","admin123");
+        new MainPage(userInMainForTest);
     }
 }
+
+

@@ -1,6 +1,9 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 
 public class Login extends JFrame implements ActionListener {
@@ -10,34 +13,42 @@ public class Login extends JFrame implements ActionListener {
     JButton registerButton;
     String username,password;
 
+    Dbstest dbstest;
+    Connection ct;
+    PreparedStatement ps;
+    ResultSet rs;
+    User user1;
+
     public Login() {
-        super("–£‘∞œ–÷√ŒÔ∆∑Ωª“◊");
+        super("Ê†°Âõ≠Èó≤ÁΩÆ‰∫§ÊòìÁ≥ªÁªü");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(300, 200);
         setLocationRelativeTo(null);
         setResizable(false);
         JPanel panel = new JPanel();
         add(panel);
-        JLabel userLabel = new JLabel("”√ªß√˚");
+        JLabel userLabel = new JLabel("Áî®Êà∑Âêç");
         userText = new JTextField();
-        JLabel passLabel = new JLabel("√‹¬Î");
+        JLabel passLabel = new JLabel("ÂØÜÁ†Å");
         passText = new JPasswordField(20);
-        loginButton = new JButton("µ«¬º");
+        loginButton = new JButton("ÁôªÂΩï");
         loginButton.addActionListener(this);
-        registerButton = new JButton("◊¢≤·");
+        registerButton = new JButton("Ê≥®ÂÜå");
         registerButton.addActionListener(this);
         panel.setLayout(null);
-        //userLabel¥¥Ω®
+        //userLabel
         userLabel.setBounds(30, 30, 80, 25);
         panel.add(userLabel);
-        //passLabel¥¥Ω®
+        //passLabel
         passLabel.setBounds(30, 60, 80, 25);
         panel.add(passLabel);
         userText.setBounds(105, 30, 165, 25);
         panel.add(userText);
         passText.setBounds(105, 60, 165, 25);
         panel.add(passText);
-        //¥¥Ω®µ«¬º¥∞ø⁄
+
+
+
         loginButton.setBounds(25, 100, 80, 25);
         panel.add(loginButton);
         registerButton.setBounds(190, 100, 80, 25);
@@ -48,16 +59,55 @@ public class Login extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if(e.getSource()==loginButton){
             username = userText.getText();
-            password= passText.getPassword().toString();
-            //TODO:≈–∂œ”√ªß√˚∫Õ√‹¬Î
-            JOptionPane.showMessageDialog(null,"µ«¬º≥…π¶£°","Ã· æ",JOptionPane.NO_OPTION);
-            setVisible(false);
-            new MainPage(username).setVisible(true);
-            dispose();
+            password= passText.getText();
+            dbstest = new Dbstest();
+            ct = dbstest.getConnection();
+            try{
+               ps = ct.prepareStatement("select userID,password from user");
+               rs = ps.executeQuery();
+               while (rs.next()){
+                   String dbUserID = rs.getString(1);
+                   String dbPassword = rs.getString(2);
+                   if(dbUserID.equals(username)){
+                       if(dbPassword.equals(password)){
+                           user1 = new User(username,password);
+                           JOptionPane.showMessageDialog(this,"ÁôªÂΩïÊàêÂäüÔºÅ");
+                           setVisible(false);
+                           new MainPage(user1).setVisible(true);
+                           dispose();
+                       }
+                       else
+                           JOptionPane.showMessageDialog(this,"Áî®Êà∑ÂêçÊàñÂØÜÁ†Å‰∏çÊ≠£Á°ÆÔºÅ");
+                   }
+               }
+            }
+            catch (Exception exc){
+                exc.printStackTrace();
+            }
+            finally {
+                try{
+                    if(rs!=null)
+                        rs.close();
+                    if(ps!=null)
+                        ps.close();
+                    if(ct!=null)
+                        ct.close();
+                }
+                catch (Exception exc){
+                    exc.printStackTrace();
+                }
+            }
+
         }
         else if (e.getSource()==registerButton){
-                //
+
+            new Register();
+
         }
+    }
+
+    public static void main(String[] args) {
+        new Login();
     }
 
 }
