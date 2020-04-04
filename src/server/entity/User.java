@@ -1,3 +1,4 @@
+package server.entity;
 public class User {
     private static String userID;
     private static String password;

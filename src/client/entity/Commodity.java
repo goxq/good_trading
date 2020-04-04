@@ -1,4 +1,5 @@
-public class Commodity {
+package client.entity;
+public class Commodity implements java.io.Serializable {
     private int id;
     private String userID;
     private double price;
@@ -14,6 +15,14 @@ public class Commodity {
         this.name = name;
         this.nums = nums;
         this.comment = comment;
+        this.isAuction = isAuction;
+    }
+    public Commodity(int id, String userID, double price, String name, int nums, int isAuction) {
+        this.id = id;
+        this.userID = userID;
+        this.price = price;
+        this.name = name;
+        this.nums = nums;
         this.isAuction = isAuction;
     }
 

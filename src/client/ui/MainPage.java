@@ -1,10 +1,16 @@
+package client.ui;
+
+import client.CScontrol;
+import client.entity.Commodity;
+import client.entity.User;
+
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.util.List;
+
 
 class MainPage extends JFrame implements ActionListener {
     JMenuBar bar;
@@ -20,24 +26,15 @@ class MainPage extends JFrame implements ActionListener {
     JTable table;
     JPanel panel;
     Object tableContent[][];
-    Object tableName[]={"商品名称","价格","商品数量","是否拍卖"};
-
-    Dbstest dbstest;
-    Connection ct;
-    PreparedStatement ps;
-    ResultSet rs;
-
+    Object tableName[] = {"商品名称", "价格", "商品数量", "是否拍卖"};
     int count;//用来每次刷新时记录表格的行数
-    int index = 0;
-
     User user1;
-
     //构造函数接受Login传来的User
-    public MainPage(User user2){
-        super("校园闲置交易系统 用户: "+user2.getUserID()+" 已登录");
+    public MainPage(User user2) {
+        super("校园闲置交易系统 用户: " + user2.getUserID() + " 已登录");
         user1 = user2;//把全局变量user1作为user2的别名
 
-        setSize(800,500);
+        setSize(800, 500);
         setLocationRelativeTo(null);
 
         //设置菜单
@@ -49,7 +46,7 @@ class MainPage extends JFrame implements ActionListener {
         item1Jmenu3 = new JMenuItem("查看购物车");
         item2Jmenu3 = new JMenuItem("查看已购买列表");
 
-        JMenu jMenu1= new JMenu("通用");
+        JMenu jMenu1 = new JMenu("通用");
         JMenu jMenu2 = new JMenu("我是卖家");
         JMenu item2Jmenu2 = new JMenu("售出情况");
         item2Jmenu2.add(part1_item2Jmenu2);
@@ -76,9 +73,9 @@ class MainPage extends JFrame implements ActionListener {
         item1Jmenu2.setActionCommand("MenuOfAddGoods");
 
 
-        panel= new JPanel();
+        panel = new JPanel();
         //panel.setBackground(Color.blue);
-        panel.setBounds(10,10,12,20);
+        panel.setBounds(10, 10, 12, 20);
 
         SearchTextField = new JTextField("请输入要查询的商品名称");
         SearchButton = new JButton("查询");
@@ -88,84 +85,53 @@ class MainPage extends JFrame implements ActionListener {
         RefreshButton.setActionCommand("RefreshButton");
 
 
-        panel.setLayout(new FlowLayout(FlowLayout.CENTER,50,0));
+        panel.setLayout(new FlowLayout(FlowLayout.CENTER, 50, 0));
         panel.add(SearchTextField);
         panel.add(SearchButton);
         panel.add(RefreshButton);
-        add(panel,BorderLayout.NORTH);
+        add(panel, BorderLayout.NORTH);
 
         getTable();
         setVisible(true);
     }
-    public void getTable(){
-        dbstest = new Dbstest();
-        ct = dbstest.getConnection();
-        try{
-            ps = ct.prepareStatement("select count(id) from commodity");
-            rs = ps.executeQuery();
-            rs.next();
-            count = rs.getInt(1);
-            System.out.println(count);
-        }
-        catch (Exception exc){
-            exc.printStackTrace();
-        }
-        tableContent = new Object[count][4];
-        try{
-            index = 0;//每次刷新前index清零
-            ps = ct.prepareStatement("select name,price,nums,isAuction from commodity");
-            rs = ps.executeQuery();
-            while (rs.next()){
-                String name = rs.getString(1);
-                double price = rs.getDouble(2);
-                int nums = rs.getInt(3);
-                int Auction = rs.getInt(4);
-                tableContent[index][0] = name;
-                tableContent[index][1] = price;
-                tableContent[index][2] = nums;
-                if(Auction == 1)
-                    tableContent[index][3] = "拍卖";
-                else
-                    tableContent[index][3] = "不拍卖";
-                index++;
-            }
-        }
-        catch (Exception exc){
-            exc.printStackTrace();
-        }
-        finally {
-            try{
-                if(rs!=null)
-                    rs.close();
-                if(ps!=null)
-                    ps.close();
-                if(ct!=null)
-                    ct.close();
-            }
-            catch (Exception e){
-                e.printStackTrace();
-            }
 
+    public void getTable() {
+
+        try {
+            count = CScontrol.getGoodsListLenToServer();
+            tableContent = new Object[count][4];
+
+            List<Commodity> list = CScontrol.getGoodsListToServer();
+            for (int i = 0; i < list.size(); i++) {
+                tableContent[i][0] = list.get(i).getName();
+                tableContent[i][1] = list.get(i).getPrice();
+                tableContent[i][2] = list.get(i).getNums();
+                if (list.get(i).getIsAuction() == 1)
+                    tableContent[i][3] = "拍卖";
+                else
+                    tableContent[i][3] = "不拍卖";
+            }
+        } catch (Exception exc) {
+            exc.printStackTrace();
         }
-        table = new JTable(tableContent,tableName);
+
+        table = new JTable(tableContent, tableName);
         table.setRowHeight(30);
         getContentPane().removeAll();
-        add(new JScrollPane(table),BorderLayout.CENTER);
-        add(panel,BorderLayout.NORTH);
+        add(new JScrollPane(table), BorderLayout.CENTER);
+        add(panel, BorderLayout.NORTH);
         setJMenuBar(bar);
         validate();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource()==SearchButton){
+        if (e.getSource() == SearchButton) {
             String searchStr = SearchTextField.getText();
             //TODO:搜索
-        }
-        else if(e.getActionCommand().equals("RefreshButton")){
+        } else if (e.getActionCommand().equals("RefreshButton")) {
             getTable();
-        }
-        else if(e.getActionCommand().equals("MenuOfAddGoods")){
+        } else if (e.getActionCommand().equals("MenuOfAddGoods")) {
             System.out.println("点了一下");
             new AddGoods(user1);
         }
@@ -173,7 +139,7 @@ class MainPage extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-        User userInMainForTest = new User("admin","admin123");
+        User userInMainForTest = new User("admin", "admin123");
         new MainPage(userInMainForTest);
     }
 }

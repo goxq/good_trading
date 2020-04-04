@@ -1,11 +1,13 @@
+package client.ui;
+import client.CScontrol;
+import client.entity.Commodity;
+import client.entity.User;
+
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+
 
 public class AddGoods extends JFrame implements ActionListener {
     JTextField jtfCommodityName;
@@ -24,9 +26,7 @@ public class AddGoods extends JFrame implements ActionListener {
     JRadioButton rb2;
     ButtonGroup bGroup;
 
-    Dbstest dbstest;
-    Connection ct;
-    PreparedStatement ps;
+
 
     User user1;
     Commodity commodity1;
@@ -95,13 +95,14 @@ public class AddGoods extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "请填写相关信息");
             }
             else {
-                //TODO:到时候Commodity的comment类写完之后 要用构造函数传值！
+
                 commodity1.setUserID(user1.getUserID());
                 commodity1.setName(jtfCommodityName.getText());
                 commodity1.setPrice(Double.parseDouble(jtfCommodityPrice.getText()));
                 commodity1.setNums(Integer.parseInt(jtfCommodityNums.getText()));
                 //isAuction属性已经在RadioBox的点击事件里设置
                 //comment属性还没设置
+
                 add();
                 jtfCommodityPrice.setText("");
                 jtfCommodityName.setText("");
@@ -120,32 +121,18 @@ public class AddGoods extends JFrame implements ActionListener {
 
 
     public void add(){
-        dbstest = new Dbstest();
-        ct = dbstest.getConnection();
+
         try{
-            ps=ct.prepareStatement("insert into commodity (userID,price,name,nums,isAuction) values (?,?,?,?,?)");
-            ps.setString(1,user1.getUserID());
-            ps.setDouble(2,commodity1.getPrice());
-            ps.setString(3,commodity1.getName());
-            ps.setInt(4,commodity1.getNums());
-            ps.setInt(5,commodity1.getIsAuction());//是否拍卖
-            ps.executeUpdate();
-            JOptionPane.showMessageDialog(this,"添加成功！");
+            int result = CScontrol.addGoods(user1.getUserID(),commodity1.getName(),commodity1.getPrice(),commodity1.getNums(),commodity1.getIsAuction());
+            if(result==1)
+                JOptionPane.showMessageDialog(this,"添加成功！");
+            else
+                JOptionPane.showMessageDialog(this,"添加失败！");
         }
         catch (Exception e){
             e.printStackTrace();
         }
-        finally {
-            try{
-                if(ps!=null)
-                    ps.close();
-                if(ct!=null)
-                    ct.close();
-            }
-            catch (Exception e){
-                e.printStackTrace();
-            }
-        }
+
     }
 
     public static void main(String[] args) {

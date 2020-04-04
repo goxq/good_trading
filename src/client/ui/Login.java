@@ -1,9 +1,12 @@
+package client.ui;
+
+import client.*;
+import client.entity.User;
+
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
 
 public class Login extends JFrame implements ActionListener {
@@ -11,12 +14,9 @@ public class Login extends JFrame implements ActionListener {
     JPasswordField passText;
     JButton loginButton;
     JButton registerButton;
-    String username,password;
+    String username, password;
 
-    Dbstest dbstest;
-    Connection ct;
-    PreparedStatement ps;
-    ResultSet rs;
+
     User user1;
 
     public Login() {
@@ -48,7 +48,6 @@ public class Login extends JFrame implements ActionListener {
         panel.add(passText);
 
 
-
         loginButton.setBounds(25, 100, 80, 25);
         panel.add(loginButton);
         registerButton.setBounds(190, 100, 80, 25);
@@ -57,59 +56,42 @@ public class Login extends JFrame implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource()==loginButton){
+        if (e.getSource() == loginButton) {
             username = userText.getText();
-            password= passText.getText();
-            dbstest = new Dbstest();
-            ct = dbstest.getConnection();
-            try{
-               ps = ct.prepareStatement("select userID,password from user");
-               rs = ps.executeQuery();
-               while (rs.next()){
-                   String dbUserID = rs.getString(1);
-                   String dbPassword = rs.getString(2);
-                   if(dbUserID.equals(username)){
-                       if(dbPassword.equals(password)){
-                           user1 = new User(username,password);
-                           JOptionPane.showMessageDialog(this,"登录成功！");
-                           setVisible(false);
-                           new MainPage(user1).setVisible(true);
-                           dispose();
-                       }
-                       else
-                           JOptionPane.showMessageDialog(this,"用户名或密码不正确！");
-                   }
-               }
-            }
-            catch (Exception exc){
-                exc.printStackTrace();
-            }
-            finally {
-                try{
-                    if(rs!=null)
-                        rs.close();
-                    if(ps!=null)
-                        ps.close();
-                    if(ct!=null)
-                        ct.close();
+            password = passText.getText();
+
+            try {
+                if (username.equals("") || password.equals("")) {
+                    JOptionPane.showMessageDialog(this, "用户名或密码不能为空！");
+                } else {
+                    boolean isSuccess = CScontrol.loginToServer(username, password);
+                    if (isSuccess) {
+                        user1 = new User(username, password);
+                        JOptionPane.showMessageDialog(this, "登录成功！");
+                        setVisible(false);
+                        new MainPage(user1).setVisible(true);
+                        dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "用户名或密码不正确！");
+                    }
                 }
-                catch (Exception exc){
+            } catch (Exception exc) {
+                exc.printStackTrace();
+            } finally {
+                try {
+
+                } catch (Exception exc) {
                     exc.printStackTrace();
                 }
             }
-
-        }
-        else if (e.getSource()==registerButton){
-
+        } else if (e.getSource() == registerButton) {
             new Register();
-
         }
     }
 
     public static void main(String[] args) {
         new Login();
     }
-
 }
 
 

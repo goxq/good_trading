@@ -1,5 +1,10 @@
+package client.ui;
+
+import client.CScontrol;
+import client.entity.User;
+
+
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
@@ -9,13 +14,9 @@ import java.sql.ResultSet;
 public class Register extends JFrame implements ActionListener {
     JTextField userText;
     JPasswordField passText;
-//    JButton loginButton;
+
     JButton registerButton;
     String username,password;
-    Dbstest dbstest;
-    Connection ct;
-    PreparedStatement ps;
-    ResultSet rs;
     User userOfRegister;//注册成功的时候new一个User，传给MainPage
 
     public Register(){
@@ -65,6 +66,7 @@ public class Register extends JFrame implements ActionListener {
             }
             if(isUsernameLetter(username)){
                 if(isPasswordRight(password))
+                    //连接服务器注册
                     register();
                 else
                     JOptionPane.showMessageDialog(this, "请输入6-12位密码，并且要包含数字和字母");
@@ -73,11 +75,6 @@ public class Register extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "请输入1-8位用户名，至少含有一位字母，不能含有特殊字符！");
                 return;
             }
-
-//            JOptionPane.showMessageDialog(null,"注册成功！","提示",JOptionPane.NO_OPTION);
-//            setVisible(false);
-//            new MainPage(username).setVisible(true);
-//            dispose();
         }
     }
     //确保用户名至少含有字母，而且只能包含字母或数字，且1-8位
@@ -90,8 +87,7 @@ public class Register extends JFrame implements ActionListener {
         }
         String regex = "^[a-zA-Z0-9]{1,8}$";
 
-        boolean isRight = isLetter && str.matches(regex);
-        return isRight;
+        return isLetter && str.matches(regex);
     }
     //确保密码至少含有字母和数字，且6-12位
     public boolean isPasswordRight(String str){
@@ -105,57 +101,31 @@ public class Register extends JFrame implements ActionListener {
             }
         }
         String regex = "^.{6,12}$";
-        boolean isRight = isDigit && isLetter && str.matches(regex);
-        return isRight;
+        return isDigit && isLetter && str.matches(regex);
     }
 
     public void register(){
-        dbstest = new Dbstest();
-        ct = dbstest.getConnection();
+
         try{
-            ps = ct.prepareStatement("select userID from user");
-            rs = ps.executeQuery();
-            while(rs.next()){
-                String userID = rs.getString(1);
-                if(userID.equals(username)){
-                    JOptionPane.showMessageDialog(this, "用户已存在！");
-                    userText.setText("");
-                    passText.setText("");
-                    return;
-                }
+
+            int result = CScontrol.RegisterToServer(username,password);
+            if(result==0){
+                JOptionPane.showMessageDialog(this, "用户已存在！");
+                userText.setText("");
+                passText.setText("");
+            }else{
+                //new一个User传给MainPage
+                userOfRegister = new User(username,password);
+                JOptionPane.showMessageDialog(this, "注册成功！");
+                setVisible(false);
+                new MainPage(userOfRegister).setVisible(true);
+                dispose();
             }
         }
-
         catch (Exception e){
             e.printStackTrace();
         }
 
-        try{
-            ps = ct.prepareStatement("insert into user(userID,password) values (?,?)");
-            ps.setString(1,username);
-            ps.setString(2,password);
-            ps.executeUpdate();
-            //new一个User传给MainPage
-            userOfRegister = new User(username,password);
-            JOptionPane.showMessageDialog(this, "注册成功！");
-            setVisible(false);
-            new MainPage(userOfRegister).setVisible(true);
-            dispose();
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-        finally {
-            try{
-                if(ps!=null)
-                    ps.close();
-                if(ct!=null)
-                    ct.close();
-            }
-            catch (Exception e){
-                e.printStackTrace();
-            }
-        }
     }
 
     public static void main(String[] args) {
