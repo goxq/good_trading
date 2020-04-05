@@ -1,4 +1,4 @@
-package client.entity;
+package common.entity;
 
 public class Commodity implements java.io.Serializable {
     private int id;

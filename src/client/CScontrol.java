@@ -1,17 +1,15 @@
-/*
-客户端各个功能与服务器连接、发送数据的类
- */
-
-
-import server.entity.Commodity;
-import server.utility.SendList;
+package client;
+import common.entity.Commodity;
+import common.utility.SendList;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/*
+客户端各个功能与服务器连接、发送数据的类
+ */
 public class CScontrol {
     static Socket socket;
     static InputStream is;
@@ -34,6 +32,7 @@ public class CScontrol {
         //给服务器说明操作
         dos.writeUTF(command);
     }
+
     public static boolean loginToServer(String username,String password) throws IOException {
         try{
             baseConnect();
@@ -74,6 +73,7 @@ public class CScontrol {
         else
             return 1;//注册成功返回1
     }
+
     public static int getGoodsListLenToServer() throws Exception{
         try{
             //连接服务器获取列列表长度
@@ -92,6 +92,7 @@ public class CScontrol {
                 is.close();
         }
     }
+
     public static List<Commodity> getGoodsListToServer() throws Exception{
         try{
             //连接服务器获取列列表<commodity>
@@ -128,6 +129,7 @@ public class CScontrol {
             dos.writeInt(nums);
             dos.writeInt(isAuction);
             if(dis.readInt()==1){
+                System.out.println("here");
                 return 1;
             }else
                 return 0;

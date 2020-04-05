@@ -1,7 +1,7 @@
 package server;
 
-import server.entity.Commodity;
-import server.utility.SendList;
+import common.entity.Commodity;
+import common.utility.SendList;
 import server.db.DbConnect;
 
 
@@ -176,7 +176,6 @@ public class ServeOne implements Runnable {
             price = dis.readDouble();
             nums= dis.readInt();
             isAuction = dis.readInt();
-
             DbConnect.addGoods(userID,price,name,nums,isAuction);
             dos.writeInt(1);
         }finally {

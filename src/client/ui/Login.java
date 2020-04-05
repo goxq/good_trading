@@ -1,8 +1,8 @@
-package ui;
+package client.ui;
 
-import server.entity.User;
+import common.entity.User;
 
-
+import client.CScontrol;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

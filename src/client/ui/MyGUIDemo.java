@@ -1,4 +1,4 @@
-package ui;
+package client.ui;
 
 public class MyGUIDemo {
     public static void main(String[] args){

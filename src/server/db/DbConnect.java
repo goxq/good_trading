@@ -1,5 +1,5 @@
 package server.db;
-import server.entity.Commodity;
+import common.entity.Commodity;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -55,6 +55,11 @@ public class DbConnect {
         try{
             connectDb();
             ps=ct.prepareStatement("insert into commodity (userID,price,name,nums,isAuction) values (?,?,?,?,?)");
+            ps.setString(1,userID);
+            ps.setDouble(2,price);
+            ps.setString(3,name);
+            ps.setInt(4,nums);
+            ps.setInt(5,isAuction);
             ps.executeUpdate();
         }catch (Exception e){
             e.printStackTrace();
