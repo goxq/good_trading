@@ -1,4 +1,5 @@
 package client.entity;
+
 public class Commodity implements java.io.Serializable {
     private int id;
     private String userID;

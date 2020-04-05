@@ -1,7 +1,6 @@
-package client.ui;
+package ui;
 
-import client.*;
-import client.entity.User;
+import server.entity.User;
 
 
 import javax.swing.*;

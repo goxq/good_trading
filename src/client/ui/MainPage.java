@@ -1,8 +1,8 @@
-package client.ui;
+package ui;
 
-import client.CScontrol;
-import client.entity.Commodity;
-import client.entity.User;
+import CScontrol;
+import server.entity.Commodity;
+import server.entity.User;
 
 
 import javax.swing.*;

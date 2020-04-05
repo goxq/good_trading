@@ -1,6 +1,4 @@
-package client.ui;
-
-import client.ui.Login;
+package ui;
 
 public class MyGUIDemo {
     public static void main(String[] args){

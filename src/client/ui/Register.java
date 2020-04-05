@@ -1,15 +1,12 @@
-package client.ui;
+package ui;
 
-import client.CScontrol;
-import client.entity.User;
+import CScontrol;
+import server.entity.User;
 
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
 public class Register extends JFrame implements ActionListener {
     JTextField userText;

@@ -2,11 +2,9 @@
 客户端各个功能与服务器连接、发送数据的类
  */
 
-package client;
 
-
-import client.entity.Commodity;
-import client.utility.SendList;
+import server.entity.Commodity;
+import server.utility.SendList;
 
 import java.io.*;
 import java.net.Socket;
