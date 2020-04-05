@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Date;
 
 
 public class AddGoods extends JFrame implements ActionListener {
@@ -100,6 +101,8 @@ public class AddGoods extends JFrame implements ActionListener {
                 commodity1.setName(jtfCommodityName.getText());
                 commodity1.setPrice(Double.parseDouble(jtfCommodityPrice.getText()));
                 commodity1.setNums(Integer.parseInt(jtfCommodityNums.getText()));
+                commodity1.setPostDate(new Date());
+                System.out.println(new Date());
                 //isAuction属性已经在RadioBox的点击事件里设置
                 //comment属性还没设置
 
@@ -123,7 +126,7 @@ public class AddGoods extends JFrame implements ActionListener {
     public void add(){
 
         try{
-            int result = CScontrol.addGoods(user1.getUserID(),commodity1.getName(),commodity1.getPrice(),commodity1.getNums(),commodity1.getIsAuction());
+            int result = CScontrol.addGoodsToServer(user1.getUserID(),commodity1.getName(),commodity1.getPrice(),commodity1.getNums(),commodity1.getIsAuction(),commodity1.getPostDate());
             if(result==1)
                 JOptionPane.showMessageDialog(this,"添加成功！");
             else

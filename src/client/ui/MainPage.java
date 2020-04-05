@@ -1,11 +1,13 @@
 package client.ui;
 
 import client.CScontrol;
+import client.ui.util.MyColor;
 import common.entity.Commodity;
 import common.entity.User;
 
 
 import javax.swing.*;
+import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,24 +23,33 @@ class MainPage extends JFrame implements ActionListener {
     JMenuItem item1Jmenu3;
     JMenuItem item2Jmenu3;
     JTextField SearchTextField;
-    JButton SearchButton;
-    JButton RefreshButton;
-    JTable table;
-    JPanel panel;
-    Object tableContent[][];
-    Object tableName[] = {"商品名称", "价格", "商品数量", "是否拍卖"};
-    int count;//用来每次刷新时记录表格的行数
+    JButton searchButton;
+    JButton refreshButton;
+
+
+    static int connectionStatus = 1;//当前连接服务器状态，每隔10秒判断一次。0 代表不成功，1代表成功
+    static JTable table;
+    static JPanel panel;
+    static Object tableContent[][];
+    static Object tableName[] = {"商品名称", "价格", "商品数量", "是否拍卖"};
+    static int count;//用来每次刷新时记录表格的行数
+    static DefaultTableModel tableModel;
     User user1;
+    static List<Commodity> commodityList;//商品列表
     //构造函数接受Login传来的User
     public MainPage(User user2) {
         super("校园闲置交易系统 用户: " + user2.getUserID() + " 已登录");
         user1 = user2;//把全局变量user1作为user2的别名
-
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 500);
         setLocationRelativeTo(null);
 
         //设置菜单
         bar = new JMenuBar();
+        bar.setBorderPainted(false);
+        bar.setBackground(MyColor.COSMO_DARK_GRAY);
+
+
         item1Jmenu1 = new JMenuItem("打开聊天窗口");
         item1Jmenu2 = new JMenuItem("发布商品");
         part1_item2Jmenu2 = new JMenuItem("销售情况统计");
@@ -52,6 +63,14 @@ class MainPage extends JFrame implements ActionListener {
         item2Jmenu2.add(part1_item2Jmenu2);
         item2Jmenu2.add(part2_item2Jmenu2);
         JMenu jMenu3 = new JMenu("我是买家");
+
+        jMenu1.setFont(new Font("微软雅黑", Font.BOLD,14));
+        jMenu2.setFont(new Font("微软雅黑", Font.BOLD,14));
+        jMenu3.setFont(new Font("微软雅黑", Font.BOLD,14));
+        jMenu1.setForeground(Color.white);
+        jMenu2.setForeground(Color.white);
+        jMenu3.setForeground(Color.white);
+
         jMenu1.add(item1Jmenu1);
         jMenu2.add(item1Jmenu2);
         jMenu2.add(item2Jmenu2);
@@ -74,63 +93,81 @@ class MainPage extends JFrame implements ActionListener {
 
 
         panel = new JPanel();
-        //panel.setBackground(Color.blue);
+
+        panel.setBackground(MyColor.COSMO_MEDIUM_GRAY);
         panel.setBounds(10, 10, 12, 20);
 
         SearchTextField = new JTextField("请输入要查询的商品名称");
-        SearchButton = new JButton("查询");
-        RefreshButton = new JButton("刷新");
+        searchButton = new JButton("查询");
+        refreshButton = new JButton("刷新");
 
-        RefreshButton.addActionListener(this);
-        RefreshButton.setActionCommand("RefreshButton");
+
+        searchButton.setBackground(Color.lightGray);
+        searchButton.setFont(new Font("黑体", Font.BOLD,17));
+        searchButton.setForeground(Color.white);
+        searchButton.setBorderPainted(false);
+
+        refreshButton.setBackground(Color.lightGray);
+        refreshButton.setFont(new Font("黑体", Font.BOLD,17));
+        refreshButton.setForeground(Color.white);
+        refreshButton.setBorderPainted(false);
+
+
+        refreshButton.addActionListener(this);
+        refreshButton.setActionCommand("RefreshButton");
 
 
         panel.setLayout(new FlowLayout(FlowLayout.CENTER, 50, 0));
         panel.add(SearchTextField);
-        panel.add(SearchButton);
-        panel.add(RefreshButton);
+        panel.add(searchButton);
+        panel.add(refreshButton);
         add(panel, BorderLayout.NORTH);
 
-        getTable();
+        TableRefreshThread trt = new TableRefreshThread();
+        Thread t = new Thread(trt);
+        //开线程刷新界面
+            t.start();
+        table = new GoodsTable(getTableModel());
+        //getTable();
+        add(new JScrollPane(table), BorderLayout.CENTER);
+        //validate();
         setVisible(true);
+
     }
 
-    public void getTable() {
+    public static DefaultTableModel getTableModel() {
 
         try {
             count = CScontrol.getGoodsListLenToServer();
             tableContent = new Object[count][4];
-
-            List<Commodity> list = CScontrol.getGoodsListToServer();
-            for (int i = 0; i < list.size(); i++) {
-                tableContent[i][0] = list.get(i).getName();
-                tableContent[i][1] = list.get(i).getPrice();
-                tableContent[i][2] = list.get(i).getNums();
-                if (list.get(i).getIsAuction() == 1)
+            commodityList = CScontrol.getGoodsListToServer();
+            for (int i = 0; i < commodityList.size(); i++) {
+                tableContent[i][0] = commodityList.get(i).getName();
+                tableContent[i][1] = commodityList.get(i).getPrice();
+                tableContent[i][2] = commodityList.get(i).getNums();
+                if (commodityList.get(i).getIsAuction() == 1)
                     tableContent[i][3] = "拍卖";
                 else
                     tableContent[i][3] = "不拍卖";
             }
+            //能进来说明连接正常。。
+            connectionStatus=1;
+            //这里判断是否能连接到服务器
         } catch (Exception exc) {
-            exc.printStackTrace();
+            System.out.println("无法连接到服务器!");
+            connectionStatus=0;
         }
-
-        table = new JTable(tableContent, tableName);
-        table.setRowHeight(30);
-        getContentPane().removeAll();
-        add(new JScrollPane(table), BorderLayout.CENTER);
-        add(panel, BorderLayout.NORTH);
-        setJMenuBar(bar);
-        validate();
+        tableModel = new DefaultTableModel(tableContent,tableName);
+        return tableModel;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == SearchButton) {
+        if (e.getSource() == searchButton) {
             String searchStr = SearchTextField.getText();
             //TODO:搜索
         } else if (e.getActionCommand().equals("RefreshButton")) {
-            getTable();
+            table.setModel(getTableModel());
         } else if (e.getActionCommand().equals("MenuOfAddGoods")) {
             System.out.println("点了一下");
             new AddGoods(user1);
@@ -142,6 +179,43 @@ class MainPage extends JFrame implements ActionListener {
         User userInMainForTest = new User("admin", "admin123");
         new MainPage(userInMainForTest);
     }
+}
+
+class GoodsTable extends JTable{
+
+    public GoodsTable(TableModel dm) {
+        super(dm);
+        setRowHeight(30);
+        setFont(new Font("微软雅黑",Font.PLAIN,14));
+        setSelectionBackground(Color.lightGray);
+        JTableHeader header = this.getTableHeader();
+        header.setFont(new Font("微软雅黑", Font.BOLD,15));
+        header.setResizingAllowed(false);
+        header.setReorderingAllowed(false);
+        header.setBackground(MyColor.BLUE_100);
+        this.setBackground(MyColor.BLUE_50);
+    }
+
+    public GoodsTable(Object[][] rowData, Object[] columnNames) {
+        super(rowData, columnNames);
+        setRowHeight(30);
+        setFont(new Font("微软雅黑",Font.PLAIN,14));
+        setSelectionBackground(Color.lightGray);
+        JTableHeader header = this.getTableHeader();
+        header.setFont(new Font("微软雅黑", Font.BOLD,15));
+        header.setResizingAllowed(false);
+        header.setReorderingAllowed(false);
+        header.setBackground(MyColor.BLUE_100);
+        this.setBackground(MyColor.BLUE_50);
+
+    }
+
+    @Override
+    public boolean isCellEditable(int row, int column) {                // 表格不可编辑
+        return false;
+    }
+
+
 }
 
 

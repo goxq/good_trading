@@ -20,9 +20,9 @@ public class MultiServer {
                 ServeOne s = new ServeOne(socket);
                 Thread thread = new Thread(s);
 
-                System.out.println("上线的客户端有"+count+"个");
+                System.out.println("请求操作的客户端已有"+count+"个");
                 InetAddress inetAddress = socket.getInetAddress();
-                System.out.println("当前客户端的IP地址是："+inetAddress.getHostAddress()+"  name是："+inetAddress.getHostName());
+                System.out.println("客户端的IP地址是："+inetAddress.getHostAddress()+"  name是："+inetAddress.getHostName());
                 thread.start();
             }
         } catch (Exception e) {

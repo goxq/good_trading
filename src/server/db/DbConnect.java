@@ -3,6 +3,7 @@ import common.entity.Commodity;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -17,7 +18,7 @@ public class DbConnect {
             Class.forName("com.mysql.cj.jdbc.Driver");
             //2.得到链接
             ct=DriverManager.getConnection("jdbc:mysql://localhost:3306/mydesign?useUnicode = true " +
-                    "& characterEncoding = utf-8&useSSL = false&serverTimezone = GMT","root","123");
+                    "& characterEncoding = utf-8&useSSL = false&serverTimezone = Asia/Shanghai","root","123");
         }
         catch (Exception e){
             e.printStackTrace();
@@ -51,15 +52,17 @@ public class DbConnect {
         }
     }
 
-    public static void addGoods(String userID, double price, String name, int nums,int isAuction) {
+    public static void addGoods(String userID, double price, String name, int nums, int isAuction, Date postDate) {
         try{
             connectDb();
-            ps=ct.prepareStatement("insert into commodity (userID,price,name,nums,isAuction) values (?,?,?,?,?)");
+            ps=ct.prepareStatement("insert into commodity (userID,price,name,nums,isAuction,postDate) values (?,?,?,?,?,?)");
             ps.setString(1,userID);
             ps.setDouble(2,price);
             ps.setString(3,name);
             ps.setInt(4,nums);
             ps.setInt(5,isAuction);
+            java.sql.Timestamp date = new java.sql.Timestamp(postDate.getTime());
+            ps.setTimestamp(6,date);
             ps.executeUpdate();
         }catch (Exception e){
             e.printStackTrace();
@@ -151,6 +154,48 @@ public class DbConnect {
             ps.setString(2,password);
             ps.executeUpdate();
 
+        }finally {
+            if (rs != null)
+                rs.close();
+            if (ps != null)
+                ps.close();
+            if (ct != null)
+                ct.close();
+        }
+    }
+
+    /*
+    点击购买商品后，添加到订单表
+     */
+    public static void addToOrder(int commodityID, String buyerID, String sellerID,Date date) throws SQLException {
+        try{
+            connectDb();
+            ps = ct.prepareStatement("insert into order(commodityID,buyerID,sellerID,date)values (?,?,?,?)");
+            ps.setInt(1,commodityID);
+            ps.setString(2,buyerID);
+            ps.setString(3,sellerID);
+            java.sql.Timestamp date_sql = new java.sql.Timestamp(date.getTime());
+            ps.setTimestamp(4,date_sql);
+            ps.executeUpdate();
+
+
+
+        }finally {
+            if (rs != null)
+                rs.close();
+            if (ps != null)
+                ps.close();
+            if (ct != null)
+                ct.close();
+        }
+    }
+
+    //给出商品id，从数据库中删除指定商品
+    public static void deleteGoods(int commodityID) throws SQLException {
+        try{
+            connectDb();
+            ps = ct.prepareStatement("delete from commodity where id = ?");
+            ps.setInt(1,commodityID);
         }finally {
             if (rs != null)
                 rs.close();

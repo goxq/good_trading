@@ -1,10 +1,13 @@
 package client;
 import common.entity.Commodity;
+import common.entity.Order;
+import common.entity.User;
 import common.utility.SendList;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /*
@@ -92,7 +95,6 @@ public class CScontrol {
                 is.close();
         }
     }
-
     public static List<Commodity> getGoodsListToServer() throws Exception{
         try{
             //连接服务器获取列列表<commodity>
@@ -118,7 +120,7 @@ public class CScontrol {
         }
     }
 
-    public static int addGoods(String userID,String name,double price,int nums,int isAuction) throws Exception{
+    public static int addGoodsToServer(String userID, String name, double price, int nums, int isAuction, Date postDate) throws Exception{
         try{
             baseConnect();
             sendCommand("AddGoods");
@@ -128,11 +130,41 @@ public class CScontrol {
             dos.writeDouble(price);
             dos.writeInt(nums);
             dos.writeInt(isAuction);
+            ObjectOutputStream oos = new ObjectOutputStream(os);
+            oos.writeObject(postDate);
             if(dis.readInt()==1){
                 System.out.println("here");
                 return 1;
             }else
                 return 0;
+        }finally {
+            if (dos != null)
+                dos.close();
+            if (os != null)
+                os.close();
+            if (dis != null)
+                dis.close();
+            if (is != null)
+                is.close();
+        }
+    }
+
+    //Commodity对象里有sellerID，所以只传来buyer就行
+    public static Order BuyToServer(Commodity commodity,User buyer,Date date) throws Exception{
+        try{
+            baseConnect();
+            sendCommand("Buy");
+            ObjectOutputStream oos = new ObjectOutputStream(os);
+
+            oos.writeObject(commodity);
+            oos.writeObject(buyer);
+            oos.writeObject(date);
+
+            int status = dis.readInt();
+            if(status==1){//添加成功
+                Order order = new Order(commodity,date,buyer.getUserID(),commodity.getUserID());
+                return order;
+            }else return null;
         }finally {
             if (dos != null)
                 dos.close();

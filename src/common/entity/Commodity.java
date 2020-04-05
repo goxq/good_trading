@@ -1,5 +1,7 @@
 package common.entity;
 
+import java.util.Date;
+
 public class Commodity implements java.io.Serializable {
     private int id;
     private String userID;
@@ -8,6 +10,25 @@ public class Commodity implements java.io.Serializable {
     private int nums;
     private Comment comment;
     private int isAuction;
+    private Date postDate;//商品发布时间
+
+    public Date getPostDate() {
+        return postDate;
+    }
+
+    public void setPostDate(Date postDate) {
+        this.postDate = postDate;
+    }
+
+    public Commodity(int id, String userID, double price, String name, int nums, int isAuction, Date postDate) {
+        this.id = id;
+        this.userID = userID;
+        this.price = price;
+        this.name = name;
+        this.nums = nums;
+        this.isAuction = isAuction;
+        this.postDate = postDate;
+    }
 
     public Commodity(int id, String userID, double price, String name, int nums, Comment comment, int isAuction) {
         this.id = id;

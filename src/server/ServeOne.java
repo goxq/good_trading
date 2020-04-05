@@ -1,12 +1,13 @@
 package server;
 
-import common.entity.Commodity;
-import common.utility.SendList;
+import common.entity.*;
+import common.utility.*;
 import server.db.DbConnect;
 
 
 import java.io.*;
 import java.net.*;
+import java.util.Date;
 import java.util.List;
 
 
@@ -26,6 +27,7 @@ public class ServeOne implements Runnable {
     @Override
     public void run() {
         try {
+
             os = socket.getOutputStream();
             dos = new DataOutputStream(os);
 
@@ -45,7 +47,8 @@ public class ServeOne implements Runnable {
                 this.getGoodsList();
             else if(command.equals("AddGoods"))
                 this.AddGoods();
-
+            else if(command.equals("Buy"))
+                this.Buy();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -170,13 +173,45 @@ public class ServeOne implements Runnable {
             double price;
             int nums;
             int isAuction;
+            Date postDate;
 
             userID=dis.readUTF(dis);
             name=dis.readUTF(dis);
             price = dis.readDouble();
             nums= dis.readInt();
             isAuction = dis.readInt();
-            DbConnect.addGoods(userID,price,name,nums,isAuction);
+
+            ObjectInputStream ois = new ObjectInputStream(ins);
+            postDate = (Date)ois.readObject();
+            //System.out.println("server端已获取日期类@ServerOne"+postDate);
+            DbConnect.addGoods(userID,price,name,nums,isAuction,postDate);
+            dos.writeInt(1);
+        }finally {
+            if (dis != null)
+                dis.close();
+            if (ins != null)
+                ins.close();
+            if (dos != null)
+                dos.close();
+            if (os != null)
+                os.close();
+        }
+    }
+
+    //点击购买按钮后。。。
+    private void Buy() throws Exception{
+        try{
+            Commodity commodity;
+            User buyer;
+            Date date;
+            ObjectInputStream ois = new ObjectInputStream(ins);
+            commodity = (Commodity)ois.readObject();
+            buyer = (User)ois.readObject();
+            date = (Date)ois.readObject();
+            DbConnect.addToOrder(commodity.getId(),buyer.getUserID(),commodity.getUserID(),date);
+            //把买到的商品从商品表里删除
+            DbConnect.deleteGoods(commodity.getId());
+
             dos.writeInt(1);
         }finally {
             if (dis != null)
