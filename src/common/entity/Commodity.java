@@ -1,62 +1,23 @@
 package common.entity;
 
 import java.util.Date;
+import java.util.List;
 
 public class Commodity implements java.io.Serializable {
-    private int id;
+    private String id;
     private String userID;
     private double price;
     private String name;
     private int nums;
-    private Comment comment;
     private int isAuction;
     private Date postDate;//商品发布时间
+    private List<Comment> commentList;//评论列表
 
-    public Date getPostDate() {
-        return postDate;
-    }
-
-    public void setPostDate(Date postDate) {
-        this.postDate = postDate;
-    }
-
-    public Commodity(int id, String userID, double price, String name, int nums, int isAuction, Date postDate) {
-        this.id = id;
-        this.userID = userID;
-        this.price = price;
-        this.name = name;
-        this.nums = nums;
-        this.isAuction = isAuction;
-        this.postDate = postDate;
-    }
-
-    public Commodity(int id, String userID, double price, String name, int nums, Comment comment, int isAuction) {
-        this.id = id;
-        this.userID = userID;
-        this.price = price;
-        this.name = name;
-        this.nums = nums;
-        this.comment = comment;
-        this.isAuction = isAuction;
-    }
-    public Commodity(int id, String userID, double price, String name, int nums, int isAuction) {
-        this.id = id;
-        this.userID = userID;
-        this.price = price;
-        this.name = name;
-        this.nums = nums;
-        this.isAuction = isAuction;
-    }
-
-    public Commodity() {
-    }
-
-
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -92,19 +53,51 @@ public class Commodity implements java.io.Serializable {
         this.nums = nums;
     }
 
-    public Comment getComment() {
-        return comment;
-    }
-
-    public void setComment(Comment comment) {
-        this.comment = comment;
-    }
-
     public int getIsAuction() {
         return isAuction;
     }
 
     public void setIsAuction(int isAuction) {
         this.isAuction = isAuction;
+    }
+
+    public Date getPostDate() {
+        return postDate;
+    }
+
+    public void setPostDate(Date postDate) {
+        this.postDate = postDate;
+    }
+
+    public Commodity() {
+    }
+
+    public List<Comment> getCommentList() {
+        return commentList;
+    }
+
+    public void setCommentList(List<Comment> commentList) {
+        this.commentList = commentList;
+    }
+
+    public Commodity(String id, String userID, double price, String name, int nums, int isAuction, Date postDate) {
+        this.id = id;
+        this.userID = userID;
+        this.price = price;
+        this.name = name;
+        this.nums = nums;
+        this.isAuction = isAuction;
+        this.postDate = postDate;
+    }
+
+    public Commodity(String id, String userID, double price, String name, int nums, int isAuction, Date postDate, List<Comment> commentList) {
+        this.id = id;
+        this.userID = userID;
+        this.price = price;
+        this.name = name;
+        this.nums = nums;
+        this.isAuction = isAuction;
+        this.postDate = postDate;
+        this.commentList = commentList;
     }
 }

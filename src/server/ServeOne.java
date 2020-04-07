@@ -1,10 +1,8 @@
 package server;
 
+import client.connect.CodecUtil;
 import common.entity.*;
-import common.utility.*;
 import server.db.DbConnect;
-
-
 import java.io.*;
 import java.net.*;
 import java.util.Date;
@@ -49,30 +47,36 @@ public class ServeOne implements Runnable {
                 this.AddGoods();
             else if(command.equals("Buy"))
                 this.Buy();
+            else if(command.equals("getAlreadyPost"))
+                this.getAlreadyPost();
+            else if(command.equals("getOrderList"))
+                this.getOrderList();
+            else if(command.equals("getCommentList"))
+                this.getCommentList();
+            else if(command.equals("addComment"))
+                this.addComment();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    private void shutStream() throws IOException {
+        if (dis != null)
+            dis.close();
+        if (ins != null)
+            ins.close();
+        if (dos != null)
+            dos.close();
+        if (os != null)
+            os.close();
     }
     private void getGoodsList() throws Exception {
         try{
 
             List<Commodity> list = DbConnect.getGoodsList();
-            //传输对象
-            SendList sl = new SendList();
-            sl.setSendlist(list);
-
             ObjectOutputStream oos = new ObjectOutputStream(os);
-            oos.writeObject(sl);
-
+            oos.writeObject(list);
         }finally {
-            if (dis != null)
-                dis.close();
-            if (ins != null)
-                ins.close();
-            if (dos != null)
-                dos.close();
-            if (os != null)
-                os.close();
+            shutStream();
         }
     }
 
@@ -80,22 +84,10 @@ public class ServeOne implements Runnable {
         try{
             int count = DbConnect.getGoodsListLength();
             dos.writeInt(count);
-
-
         }finally {
-            if (dis != null)
-                dis.close();
-            if (ins != null)
-                ins.close();
-            if (dos != null)
-                dos.close();
-            if (os != null)
-                os.close();
+            shutStream();
         }
-
-
     }
-
     private void Login(){
         try {
             //登陆操作
@@ -120,14 +112,7 @@ public class ServeOne implements Runnable {
             e.printStackTrace();
         } finally {
             try {
-                if (dis != null)
-                    dis.close();
-                if (ins != null)
-                    ins.close();
-                if (dos != null)
-                    dos.close();
-                if (os != null)
-                    os.close();
+                shutStream();
             } catch (Exception exc) {
                 exc.printStackTrace();
             }
@@ -153,14 +138,7 @@ public class ServeOne implements Runnable {
             DbConnect.register(username,password);
             dos.writeUTF("success");
         }finally {
-            if (dis != null)
-                dis.close();
-            if (ins != null)
-                ins.close();
-            if (dos != null)
-                dos.close();
-            if (os != null)
-                os.close();
+            shutStream();
         }
 
 
@@ -174,7 +152,9 @@ public class ServeOne implements Runnable {
             int nums;
             int isAuction;
             Date postDate;
+            String goodID;
 
+            goodID=dis.readUTF(dis);
             userID=dis.readUTF(dis);
             name=dis.readUTF(dis);
             price = dis.readDouble();
@@ -183,18 +163,11 @@ public class ServeOne implements Runnable {
 
             ObjectInputStream ois = new ObjectInputStream(ins);
             postDate = (Date)ois.readObject();
-            //System.out.println("server端已获取日期类@ServerOne"+postDate);
-            DbConnect.addGoods(userID,price,name,nums,isAuction,postDate);
+            DbConnect.addGoods(goodID,userID,price,name,nums,isAuction,postDate);//将商品写入commodity表（商品列表）
+            DbConnect.addToAlreadyPost(goodID,userID,price,name,nums,isAuction,postDate);//将商品写入已发布
             dos.writeInt(1);
         }finally {
-            if (dis != null)
-                dis.close();
-            if (ins != null)
-                ins.close();
-            if (dos != null)
-                dos.close();
-            if (os != null)
-                os.close();
+            shutStream();
         }
     }
 
@@ -204,24 +177,69 @@ public class ServeOne implements Runnable {
             Commodity commodity;
             User buyer;
             Date date;
+            int nums;//购买数量
+            String orderID;//订单编号
             ObjectInputStream ois = new ObjectInputStream(ins);
             commodity = (Commodity)ois.readObject();
             buyer = (User)ois.readObject();
             date = (Date)ois.readObject();
-            DbConnect.addToOrder(commodity.getId(),buyer.getUserID(),commodity.getUserID(),date);
+            nums = dis.readInt();
+            orderID = dis.readUTF();
+            DbConnect.addToOrder(orderID,commodity.getId(),buyer.getUserID(),commodity.getUserID(),commodity.getPrice(),
+                    commodity.getName(),nums,commodity.getIsAuction(),date);
             //把买到的商品从商品表里删除
-            DbConnect.deleteGoods(commodity.getId());
+            DbConnect.deleteGoods(commodity.getId(),nums);
 
             dos.writeInt(1);
         }finally {
-            if (dis != null)
-                dis.close();
-            if (ins != null)
-                ins.close();
-            if (dos != null)
-                dos.close();
-            if (os != null)
-                os.close();
+            shutStream();
         }
+    }
+
+    private void getAlreadyPost() throws Exception {
+        try{
+            String userID=dis.readUTF(dis);
+            List<Commodity> alreadyPostList = DbConnect.getAlreadyPost(userID);
+            ObjectOutputStream oos = new ObjectOutputStream(os);
+            oos.writeObject(alreadyPostList);
+
+        }finally {
+            shutStream();
+        }
+    }
+    private void getOrderList() throws Exception{
+        try{
+            List<Order> orderList;
+            String userID;
+            userID = dis.readUTF(dis);
+            orderList = DbConnect.getOrderList(userID);
+            ObjectOutputStream oos = new ObjectOutputStream(os);
+            oos.writeObject(orderList);
+        }finally {
+            shutStream();
+        }
+    }
+    private void getCommentList() throws Exception{
+        List<Comment> commentList;
+        String commodityID;
+        commodityID = dis.readUTF(dis);
+        commentList = DbConnect.getCommentList(commodityID);
+
+        ObjectOutputStream oos = new ObjectOutputStream(os);
+        oos.writeObject(commentList);
+    }
+    /*
+    给指定商品添加评论
+     */
+    private void addComment() throws Exception{
+        String commodityID;
+        String userID;
+        String content;
+
+        commodityID = dis.readUTF(dis);
+        userID=dis.readUTF(dis);
+        content=dis.readUTF(dis);
+
+        DbConnect.addComment(commodityID,userID,content);
     }
 }

@@ -1,8 +1,9 @@
 package client;
+import client.connect.CodecUtil;
+import common.entity.Comment;
 import common.entity.Commodity;
 import common.entity.Order;
 import common.entity.User;
-import common.utility.SendList;
 
 import java.io.*;
 import java.net.Socket;
@@ -76,7 +77,16 @@ public class CScontrol {
         else
             return 1;//注册成功返回1
     }
-
+    private static void shutStream() throws IOException {
+        if(dos!=null)
+            dos.close();
+        if(os!=null)
+            os.close();
+        if(dis!=null)
+            dis.close();
+        if(is!=null)
+            is.close();
+    }
     public static int getGoodsListLenToServer() throws Exception{
         try{
             //连接服务器获取列列表长度
@@ -85,14 +95,7 @@ public class CScontrol {
             int listCount = dis.readInt();//获取到list的长度
             return listCount;
         }finally {
-            if (dos != null)
-                dos.close();
-            if (os != null)
-                os.close();
-            if (dis != null)
-                dis.close();
-            if (is != null)
-                is.close();
+            shutStream();
         }
     }
     public static List<Commodity> getGoodsListToServer() throws Exception{
@@ -100,23 +103,12 @@ public class CScontrol {
             //连接服务器获取列列表<commodity>
             baseConnect();
             sendCommand("GetGoodsList");
-
             ObjectInputStream ois = new ObjectInputStream(is);
-            SendList sl = new SendList();
-            sl = (SendList)ois.readObject();
-
-            List resultList = new ArrayList();
-            resultList = sl.getSendlist();
+            List<Commodity> resultList;
+            resultList = (List<Commodity>)ois.readObject();
             return resultList;
         }finally {
-            if (dos != null)
-                dos.close();
-            if (os != null)
-                os.close();
-            if (dis != null)
-                dis.close();
-            if (is != null)
-                is.close();
+            shutStream();
         }
     }
 
@@ -124,7 +116,9 @@ public class CScontrol {
         try{
             baseConnect();
             sendCommand("AddGoods");
-
+            //生成商品号码
+            String goodID = CodecUtil.createOrderId();
+            dos.writeUTF(goodID);
             dos.writeUTF(userID);
             dos.writeUTF(name);
             dos.writeDouble(price);
@@ -138,43 +132,102 @@ public class CScontrol {
             }else
                 return 0;
         }finally {
-            if (dos != null)
-                dos.close();
-            if (os != null)
-                os.close();
-            if (dis != null)
-                dis.close();
-            if (is != null)
-                is.close();
+            shutStream();
         }
     }
 
+    /*
+    商品购买类，返回订单类  添加成功返回1，失败返回0
+     */
     //Commodity对象里有sellerID，所以只传来buyer就行
-    public static Order BuyToServer(Commodity commodity,User buyer,Date date) throws Exception{
+    public static int BuyToServer(Commodity commodity,User buyer,int nums) throws Exception{
         try{
             baseConnect();
             sendCommand("Buy");
+            Date date = new Date();
             ObjectOutputStream oos = new ObjectOutputStream(os);
+
+            //生成唯一订单号
+            String oderID = CodecUtil.createOrderId();
 
             oos.writeObject(commodity);
             oos.writeObject(buyer);
             oos.writeObject(date);
-
+            dos.writeInt(nums);//购买数量
+            dos.writeUTF(oderID);
             int status = dis.readInt();
             if(status==1){//添加成功
-                Order order = new Order(commodity,date,buyer.getUserID(),commodity.getUserID());
-                return order;
-            }else return null;
+                return 1;
+            }else return 0;
         }finally {
-            if (dos != null)
-                dos.close();
-            if (os != null)
-                os.close();
-            if (dis != null)
-                dis.close();
-            if (is != null)
-                is.close();
+            shutStream();
         }
     }
 
+
+    /*
+    获取已发布商品
+     */
+    public static List<Commodity> getAlreadyPost(String userID) throws Exception {
+        try{
+            List<Commodity> commodities;
+            baseConnect();
+            sendCommand("getAlreadyPost");
+            dos.writeUTF(userID);
+            ObjectInputStream ois = new ObjectInputStream(is);
+            commodities = (List<Commodity>) ois.readObject();
+            return commodities;
+        }finally {
+            shutStream();
+        }
+    }
+    /*
+    获取订单列表
+     */
+    public static List<Order> getOrderList(String userID) throws Exception {
+        try{
+            baseConnect();
+            sendCommand("getOrderList");
+            dos.writeUTF(userID);
+            List<Order> orderList;
+            ObjectInputStream ois = new ObjectInputStream(is);
+            orderList=(List<Order>)ois.readObject();
+            return orderList;
+        }finally {
+            shutStream();
+        }
+    }
+
+    /*
+    获取指定商品的评论列表
+     */
+    public static List<Comment> getCommentList(String commodityID) throws Exception{
+        try{
+            baseConnect();
+            sendCommand("getCommentList");
+            dos.writeUTF(commodityID);
+            List<Comment> commentList;
+            ObjectInputStream ois = new ObjectInputStream(is);
+            commentList = (List<Comment>)ois.readObject();
+            return commentList;
+        }finally {
+            shutStream();
+        }
+
+    }
+    /*
+    给指定商品添加评论
+     */
+    public static void addComment(String commodityID, String userID,String content)throws Exception{
+        try{
+            baseConnect();
+            sendCommand("addComment");
+            dos.writeUTF(commodityID);
+            dos.writeUTF(userID);
+            dos.writeUTF(content);
+        }finally {
+            shutStream();
+        }
+
+    }
 }
