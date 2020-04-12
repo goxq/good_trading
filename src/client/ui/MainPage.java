@@ -11,6 +11,8 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
 
@@ -90,6 +92,8 @@ class MainPage extends JFrame implements ActionListener {
         part2_item2Jmenu2.addActionListener(this);
 
         item1Jmenu2.setActionCommand("MenuOfAddGoods");
+        part2_item2Jmenu2.setActionCommand("alreadyPost");
+
 
 
         panel = new JPanel();
@@ -126,9 +130,23 @@ class MainPage extends JFrame implements ActionListener {
         TableRefreshThread trt = new TableRefreshThread();
         Thread t = new Thread(trt);
         //开线程刷新界面
-            t.start();
+        t.start();
         table = new GoodsTable(getTableModel());
-        //getTable();
+        //添加双击事件
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                if(e.getClickCount()==2){
+                    int row = ((JTable)e.getSource()).rowAtPoint(e.getPoint());//获得行位置
+                    Commodity commodity = commodityList.get(row);
+                    /*
+                    打开商品详情界面
+                     */
+
+                }
+            }
+        });
         add(new JScrollPane(table), BorderLayout.CENTER);
         //validate();
         setVisible(true);

@@ -23,7 +23,7 @@ public class CScontrol {
 
     public static void baseConnect() throws IOException {
         //连接服务器
-        socket = new Socket("127.0.0.1",8090);
+        socket = new Socket("127.0.0.1",9999);
     }
     public static void sendCommand(String command) throws IOException {
         is = socket.getInputStream();
@@ -137,7 +137,7 @@ public class CScontrol {
     }
 
     /*
-    商品购买类，返回订单类  添加成功返回1，失败返回0
+    商品购买 添加成功返回1，失败返回0
      */
     //Commodity对象里有sellerID，所以只传来buyer就行
     public static int BuyToServer(Commodity commodity,User buyer,int nums) throws Exception{

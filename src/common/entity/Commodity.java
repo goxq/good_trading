@@ -90,6 +90,20 @@ public class Commodity implements java.io.Serializable {
         this.postDate = postDate;
     }
 
+    @Override
+    public String toString() {
+        return "Commodity{" +
+                "id='" + id + '\'' +
+                ", userID='" + userID + '\'' +
+                ", price=" + price +
+                ", name='" + name + '\'' +
+                ", nums=" + nums +
+                ", isAuction=" + isAuction +
+                ", postDate=" + postDate +
+                ", commentList=" + commentList +
+                '}';
+    }
+
     public Commodity(String id, String userID, double price, String name, int nums, int isAuction, Date postDate, List<Comment> commentList) {
         this.id = id;
         this.userID = userID;

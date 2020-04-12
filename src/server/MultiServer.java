@@ -5,7 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class MultiServer {
-    static int port = 8090;
+    static int port = 9999;
 
 
     public static void main(String[] args) {
@@ -19,7 +19,6 @@ public class MultiServer {
                 count++;
                 ServeOne s = new ServeOne(socket);
                 Thread thread = new Thread(s);
-
                 System.out.println("请求操作的客户端已有"+count+"个");
                 InetAddress inetAddress = socket.getInetAddress();
                 System.out.println("客户端的IP地址是："+inetAddress.getHostAddress()+"  name是："+inetAddress.getHostName());

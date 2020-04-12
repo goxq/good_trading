@@ -77,6 +77,7 @@ public class ServeOne implements Runnable {
             oos.writeObject(list);
         }finally {
             shutStream();
+
         }
     }
 
