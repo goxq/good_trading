@@ -3,8 +3,6 @@ package client.ui;
 import common.entity.User;
 
 import client.CScontrol;
-import server.db.DbConnect;
-
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

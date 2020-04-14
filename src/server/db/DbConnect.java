@@ -3,6 +3,7 @@ import client.connect.CodecUtil;
 import common.entity.Comment;
 import common.entity.Commodity;
 import common.entity.Order;
+import common.entity.User;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -338,6 +339,22 @@ public class DbConnect {
         }finally {
             shut();
         }
+    }
+    /*
+    获取已经注册的用户列表
+     */
+    public static List<User> getAllUsers() throws SQLException{
+        connectDb();
+        List<User> userList = new ArrayList<>();
+        ps=ct.prepareStatement("select userID from user;");
+        rs=ps.executeQuery();
+        while (rs.next()){
+            User user = new User();
+            user.setUserID(rs.getString(1));
+            userList.add(user);
+        }
+        System.out.println(userList.get(0).getUserID());
+        return userList;
     }
 }
 

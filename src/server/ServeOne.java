@@ -11,6 +11,7 @@ import java.util.List;
 
 public class ServeOne implements Runnable {
     Socket socket;
+    String clientIP;
     OutputStream os;
     DataOutputStream dos;
     InputStream ins;
@@ -18,57 +19,62 @@ public class ServeOne implements Runnable {
 
     String command;
 
-    public ServeOne(Socket socket) {
+    public ServeOne(Socket socket,String clientIP) {
         this.socket = socket;
+        this.clientIP = clientIP;
     }
 
     @Override
     public void run() {
         try {
 
-            os = socket.getOutputStream();
-            dos = new DataOutputStream(os);
+            while(true) {
+                os = socket.getOutputStream();
+                dos = new DataOutputStream(os);
 
-            ins = socket.getInputStream();
-            dis = new DataInputStream(ins);
+                ins = socket.getInputStream();
+                dis = new DataInputStream(ins);
+                command = dis.readUTF(dis);//从client获取操作
 
-            dos.writeUTF("你已经连接到服务器！");
-            command = dis.readUTF(dis);//从client获取操作
-
-            if (command.equals("Login"))
-                this.Login();
-            else if(command.equals("Register"))
-                this.Register();
-            else if(command.equals("GetGoodsListLen"))
-                this.getGoodsListLen();
-            else if(command.equals("GetGoodsList"))
-                this.getGoodsList();
-            else if(command.equals("AddGoods"))
-                this.AddGoods();
-            else if(command.equals("Buy"))
-                this.Buy();
-            else if(command.equals("getAlreadyPost"))
-                this.getAlreadyPost();
-            else if(command.equals("getOrderList"))
-                this.getOrderList();
-            else if(command.equals("getCommentList"))
-                this.getCommentList();
-            else if(command.equals("addComment"))
-                this.addComment();
-        } catch (Exception e) {
-            e.printStackTrace();
+                if (command.equals("Login"))
+                    this.Login();
+                else if (command.equals("Register"))
+                    this.Register();
+                else if (command.equals("GetGoodsListLen"))
+                    this.getGoodsListLen();
+                else if (command.equals("GetGoodsList"))
+                    this.getGoodsList();
+                else if (command.equals("AddGoods"))
+                    this.AddGoods();
+                else if (command.equals("Buy"))
+                    this.Buy();
+                else if (command.equals("getAlreadyPost"))
+                    this.getAlreadyPost();
+                else if (command.equals("getOrderList"))
+                    this.getOrderList();
+                else if (command.equals("getCommentList"))
+                    this.getCommentList();
+                else if (command.equals("addComment"))
+                    this.addComment();
+                else if(command.equals("getAllUsers"))
+                    this.getAllUsers();
+            }
+        } catch (SocketException e) {
+            System.out.println("连接 "+clientIP+" 已退出");
+        } catch (Exception ex){
+            ex.printStackTrace();
         }
     }
-    private void shutStream() throws IOException {
-        if (dis != null)
-            dis.close();
-        if (ins != null)
-            ins.close();
-        if (dos != null)
-            dos.close();
-        if (os != null)
-            os.close();
-    }
+//    private void shutStream() throws IOException {
+//        if (dis != null)
+//            dis.close();
+//        if (ins != null)
+//            ins.close();
+//        if (dos != null)
+//            dos.close();
+//        if (os != null)
+//            os.close();
+//    }
     private void getGoodsList() throws Exception {
         try{
 
@@ -76,7 +82,7 @@ public class ServeOne implements Runnable {
             ObjectOutputStream oos = new ObjectOutputStream(os);
             oos.writeObject(list);
         }finally {
-            shutStream();
+//            shutStream();
 
         }
     }
@@ -86,7 +92,7 @@ public class ServeOne implements Runnable {
             int count = DbConnect.getGoodsListLength();
             dos.writeInt(count);
         }finally {
-            shutStream();
+//            shutStream();
         }
     }
     private void Login(){
@@ -113,7 +119,7 @@ public class ServeOne implements Runnable {
             e.printStackTrace();
         } finally {
             try {
-                shutStream();
+                //shutStream();
             } catch (Exception exc) {
                 exc.printStackTrace();
             }
@@ -139,7 +145,7 @@ public class ServeOne implements Runnable {
             DbConnect.register(username,password);
             dos.writeUTF("success");
         }finally {
-            shutStream();
+//            shutStream();
         }
 
 
@@ -168,7 +174,7 @@ public class ServeOne implements Runnable {
             DbConnect.addToAlreadyPost(goodID,userID,price,name,nums,isAuction,postDate);//将商品写入已发布
             dos.writeInt(1);
         }finally {
-            shutStream();
+//            shutStream();
         }
     }
 
@@ -193,7 +199,7 @@ public class ServeOne implements Runnable {
 
             dos.writeInt(1);
         }finally {
-            shutStream();
+//            shutStream();
         }
     }
 
@@ -205,7 +211,7 @@ public class ServeOne implements Runnable {
             oos.writeObject(alreadyPostList);
 
         }finally {
-            shutStream();
+//            shutStream();
         }
     }
     private void getOrderList() throws Exception{
@@ -217,7 +223,7 @@ public class ServeOne implements Runnable {
             ObjectOutputStream oos = new ObjectOutputStream(os);
             oos.writeObject(orderList);
         }finally {
-            shutStream();
+//            shutStream();
         }
     }
     private void getCommentList() throws Exception{
@@ -243,4 +249,12 @@ public class ServeOne implements Runnable {
 
         DbConnect.addComment(commodityID,userID,content);
     }
+    /*
+    查询用户列表并返回所有用户
+     */
+    private void getAllUsers() throws Exception{
+        ObjectOutputStream oos = new ObjectOutputStream(os);
+        oos.writeObject(DbConnect.getAllUsers());
+    }
+
 }

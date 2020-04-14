@@ -1,7 +1,13 @@
 package client.ui;
 
 import client.CScontrol;
+import client.chat.model.QqClientUser;
+import client.chat.tools.ClientConServerThread;
+import client.chat.tools.ManageFriendList;
+import client.chat.view.FriendList;
 import client.ui.util.MyColor;
+import common.chat.Message;
+import common.chat.MessageType;
 import common.entity.Commodity;
 import common.entity.User;
 
@@ -13,6 +19,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.ObjectOutputStream;
 import java.util.List;
 
 
@@ -34,14 +41,13 @@ class MainPage extends JFrame implements ActionListener {
     static JPanel panel;
     static Object tableContent[][];
     static Object tableName[] = {"商品名称", "价格", "商品数量", "是否拍卖"};
-    static int count;//用来每次刷新时记录表格的行数
     static DefaultTableModel tableModel;
     User user1;
     static List<Commodity> commodityList;//商品列表
     //构造函数接受Login传来的User
-    public MainPage(User user2) {
-        super("校园闲置交易系统 用户: " + user2.getUserID() + " 已登录");
-        user1 = user2;//把全局变量user1作为user2的别名
+    public MainPage(User user) {
+        super("校园闲置交易系统 用户: " + user.getUserID() + " 已登录");
+        this.user1 = user;//把全局变量user1作为user2的别名
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 500);
         setLocationRelativeTo(null);
@@ -91,6 +97,7 @@ class MainPage extends JFrame implements ActionListener {
         part1_item2Jmenu2.addActionListener(this);
         part2_item2Jmenu2.addActionListener(this);
 
+        item1Jmenu1.setActionCommand("Chat");
         item1Jmenu2.setActionCommand("MenuOfAddGoods");
         part2_item2Jmenu2.setActionCommand("alreadyPost");
 
@@ -105,11 +112,6 @@ class MainPage extends JFrame implements ActionListener {
         searchButton = new JButton("查询");
         refreshButton = new JButton("刷新");
 
-
-        searchButton.setBackground(Color.lightGray);
-        searchButton.setFont(new Font("黑体", Font.BOLD,17));
-        searchButton.setForeground(Color.white);
-        searchButton.setBorderPainted(false);
 
         refreshButton.setBackground(Color.lightGray);
         refreshButton.setFont(new Font("黑体", Font.BOLD,17));
@@ -156,9 +158,8 @@ class MainPage extends JFrame implements ActionListener {
     public static DefaultTableModel getTableModel() {
 
         try {
-            count = CScontrol.getGoodsListLenToServer();
-            tableContent = new Object[count][4];
             commodityList = CScontrol.getGoodsListToServer();
+            tableContent = new Object[commodityList.size()][4];
             for (int i = 0; i < commodityList.size(); i++) {
                 tableContent[i][0] = commodityList.get(i).getName();
                 tableContent[i][1] = commodityList.get(i).getPrice();
@@ -189,6 +190,31 @@ class MainPage extends JFrame implements ActionListener {
         } else if (e.getActionCommand().equals("MenuOfAddGoods")) {
             System.out.println("点了一下");
             new AddGoods(user1);
+        }else if(e.getActionCommand().equals("Chat")){
+            QqClientUser qqClientUser = new QqClientUser();
+            if(qqClientUser.checkUser(user1)){
+                List<User> userList;
+                try {
+                    //获取全部好友
+                    userList = CScontrol.getAllUsers();
+                    FriendList fl = new FriendList(user1.getUserID(),userList);
+                    ManageFriendList.addFriendList(user1.getUserID(),fl);
+                    //登录成功后要求服务器返回一个在线的包
+                    ObjectOutputStream oos = new ObjectOutputStream(ClientConServerThread.s.getOutputStream());
+                    //做一个message
+                    Message m = new Message();
+                    m.setMessageType(MessageType.message_get_onLineFriend);
+                    //指明我要这个号的在线好友列表
+                    m.setSender(user1.getUserID());
+                    oos.writeObject(m);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+
+            }else {
+                JOptionPane.showMessageDialog(this,"用户名或密码错误");
+
+            }
         }
         //TODO:写各个菜单的点击事件
     }
@@ -232,8 +258,6 @@ class GoodsTable extends JTable{
     public boolean isCellEditable(int row, int column) {                // 表格不可编辑
         return false;
     }
-
-
 }
 
 

@@ -1,9 +1,6 @@
 package client;
 import client.connect.CodecUtil;
-import common.entity.Comment;
-import common.entity.Commodity;
-import common.entity.Order;
-import common.entity.User;
+import common.entity.*;
 
 import java.io.*;
 import java.net.Socket;
@@ -15,24 +12,21 @@ import java.util.List;
 客户端各个功能与服务器连接、发送数据的类
  */
 public class CScontrol {
-    static Socket socket;
-    static InputStream is;
-    static DataInputStream dis;
-    static OutputStream os;
-    static DataOutputStream dos;
+    public static Socket socket;
+    public static InputStream is;
+    public static DataInputStream dis;
+    public static OutputStream os;
+    public static DataOutputStream dos;
 
     public static void baseConnect() throws IOException {
         //连接服务器
-        socket = new Socket("127.0.0.1",9999);
-    }
-    public static void sendCommand(String command) throws IOException {
+        socket = new Socket("127.0.0.1",8900);
         is = socket.getInputStream();
         dis = new DataInputStream(is);
         os = socket.getOutputStream();
         dos = new DataOutputStream(os);
-
-        System.out.println(dis.readUTF(dis));//打印你已连接到服务器
-
+    }
+    public static void sendCommand(String command) throws IOException {
         //给服务器说明操作
         dos.writeUTF(command);
     }
@@ -40,6 +34,8 @@ public class CScontrol {
     public static boolean loginToServer(String username,String password) throws IOException {
         try{
             baseConnect();
+//          dos.writeUTF(username);//进入线程之前先提供userID供服务器加到hashmap里面去。。
+
             sendCommand("Login");
             dos.writeUTF(username);
             dos.writeUTF(password);
@@ -53,14 +49,14 @@ public class CScontrol {
                 return false;
 
         }finally {
-            if (dos != null)
-                dos.close();
-            if (os != null)
-                os.close();
-            if (dis != null)
-                dis.close();
-            if (is != null)
-                is.close();
+//            if (dos != null)
+//                dos.close();
+//            if (os != null)
+//                os.close();
+//            if (dis != null)
+//                dis.close();
+//            if (is != null)
+//                is.close();
         }
 
     }
@@ -77,44 +73,42 @@ public class CScontrol {
         else
             return 1;//注册成功返回1
     }
-    private static void shutStream() throws IOException {
-        if(dos!=null)
-            dos.close();
-        if(os!=null)
-            os.close();
-        if(dis!=null)
-            dis.close();
-        if(is!=null)
-            is.close();
-    }
+//    private static void shutStream() throws IOException {
+//        if(dos!=null)
+//            dos.close();
+//        if(os!=null)
+//            os.close();
+//        if(dis!=null)
+//            dis.close();
+//        if(is!=null)
+//            is.close();
+//    }
     public static int getGoodsListLenToServer() throws Exception{
         try{
             //连接服务器获取列列表长度
-            baseConnect();
             sendCommand("GetGoodsListLen");
             int listCount = dis.readInt();//获取到list的长度
             return listCount;
         }finally {
-            shutStream();
+//            shutStream();
         }
-    }
+    }//好像没什么用。。。
     public static List<Commodity> getGoodsListToServer() throws Exception{
         try{
             //连接服务器获取列列表<commodity>
-            baseConnect();
             sendCommand("GetGoodsList");
             ObjectInputStream ois = new ObjectInputStream(is);
             List<Commodity> resultList;
             resultList = (List<Commodity>)ois.readObject();
             return resultList;
         }finally {
-            shutStream();
+//            shutStream();
         }
     }
 
     public static int addGoodsToServer(String userID, String name, double price, int nums, int isAuction, Date postDate) throws Exception{
         try{
-            baseConnect();
+
             sendCommand("AddGoods");
             //生成商品号码
             String goodID = CodecUtil.createOrderId();
@@ -132,7 +126,7 @@ public class CScontrol {
             }else
                 return 0;
         }finally {
-            shutStream();
+//            shutStream();
         }
     }
 
@@ -142,7 +136,7 @@ public class CScontrol {
     //Commodity对象里有sellerID，所以只传来buyer就行
     public static int BuyToServer(Commodity commodity,User buyer,int nums) throws Exception{
         try{
-            baseConnect();
+
             sendCommand("Buy");
             Date date = new Date();
             ObjectOutputStream oos = new ObjectOutputStream(os);
@@ -160,7 +154,7 @@ public class CScontrol {
                 return 1;
             }else return 0;
         }finally {
-            shutStream();
+//            shutStream();
         }
     }
 
@@ -171,14 +165,14 @@ public class CScontrol {
     public static List<Commodity> getAlreadyPost(String userID) throws Exception {
         try{
             List<Commodity> commodities;
-            baseConnect();
+
             sendCommand("getAlreadyPost");
             dos.writeUTF(userID);
             ObjectInputStream ois = new ObjectInputStream(is);
             commodities = (List<Commodity>) ois.readObject();
             return commodities;
         }finally {
-            shutStream();
+//            shutStream();
         }
     }
     /*
@@ -186,7 +180,7 @@ public class CScontrol {
      */
     public static List<Order> getOrderList(String userID) throws Exception {
         try{
-            baseConnect();
+
             sendCommand("getOrderList");
             dos.writeUTF(userID);
             List<Order> orderList;
@@ -194,7 +188,7 @@ public class CScontrol {
             orderList=(List<Order>)ois.readObject();
             return orderList;
         }finally {
-            shutStream();
+//            shutStream();
         }
     }
 
@@ -203,7 +197,7 @@ public class CScontrol {
      */
     public static List<Comment> getCommentList(String commodityID) throws Exception{
         try{
-            baseConnect();
+
             sendCommand("getCommentList");
             dos.writeUTF(commodityID);
             List<Comment> commentList;
@@ -211,7 +205,7 @@ public class CScontrol {
             commentList = (List<Comment>)ois.readObject();
             return commentList;
         }finally {
-            shutStream();
+//            shutStream();
         }
 
     }
@@ -220,14 +214,23 @@ public class CScontrol {
      */
     public static void addComment(String commodityID, String userID,String content)throws Exception{
         try{
-            baseConnect();
+
             sendCommand("addComment");
             dos.writeUTF(commodityID);
             dos.writeUTF(userID);
             dos.writeUTF(content);
         }finally {
-            shutStream();
+//            shutStream();
         }
+    }
 
+    public static List<User> getAllUsers() throws Exception{
+            sendCommand("getAllUsers");
+            System.out.println("嘿嘿嘿");
+            ObjectInputStream ois = new ObjectInputStream(is);
+            List<User> userList = (List<User>)ois.readObject();
+            System.out.println(userList.get(5).getPassword());
+            System.out.println("呵呵呵");
+            return userList;
     }
 }

@@ -1,7 +1,8 @@
 package common.entity;
-public class User {
-    private static String userID;
-    private static String password;
+public class User implements java.io.Serializable{
+    private static final long serialVersionUID = 7453004356676632114L;
+    private String userID;
+    private String password;
 
     public User(String userID, String password) {
         this.userID = userID;
