@@ -1,4 +1,4 @@
-package client.ui;
+package client.ui.old;
 
 import client.CScontrol;
 import common.entity.User;
@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class Register extends JFrame implements ActionListener {
+public class Register_old extends JFrame implements ActionListener {
     JTextField userText;
     JPasswordField passText;
 
@@ -16,7 +16,7 @@ public class Register extends JFrame implements ActionListener {
     String username,password;
     User userOfRegister;//注册成功的时候new一个User，传给MainPage
 
-    public Register(){
+    public Register_old(){
         super("注册");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(300, 200);
@@ -115,7 +115,7 @@ public class Register extends JFrame implements ActionListener {
                 userOfRegister = new User(username,password);
                 JOptionPane.showMessageDialog(this, "注册成功！");
                 setVisible(false);
-                new MainPage(userOfRegister).setVisible(true);
+                new MainPage_old(userOfRegister).setVisible(true);
                 dispose();
             }
         }
@@ -126,7 +126,7 @@ public class Register extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-        new Register();
+        new Register_old();
     }
 
 }

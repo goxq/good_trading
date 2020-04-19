@@ -93,40 +93,88 @@ public class CScontrol {
 //            shutStream();
         }
     }//好像没什么用。。。
+
+    /*
+    获取商品列表
+     */
     public static List<Commodity> getGoodsListToServer() throws Exception{
         try{
             //连接服务器获取列列表<commodity>
             sendCommand("GetGoodsList");
             ObjectInputStream ois = new ObjectInputStream(is);
-            List<Commodity> resultList;
-            resultList = (List<Commodity>)ois.readObject();
+            List<Commodity> resultList = (List<Commodity>)ois.readObject();
+            //接受图片
+            for (Commodity commodity : resultList) {
+
+                    String fileName = dis.readUTF();
+                System.out.println(1);
+                    long fileLength = dis.readLong();
+                    File directory = new File("D:\\Design\\Client");
+                    File file = new File(directory.getAbsolutePath() + File.separatorChar + fileName);
+                    FileOutputStream fos = new FileOutputStream(file);
+                    //开始接受文件
+                    byte[] bytes = new byte[1024];
+                    int length = 0;
+                    int count =0;
+
+                    while ((length = dis.read(bytes)) != -1) {
+                        fos.write(bytes, 0, length);
+                        fos.flush();
+                        System.out.println(count++);
+                        if (fileLength == file.length()) break;
+                    }
+                    System.out.println("======== 获取商品图片成功 [File Name：" + fileName + "] ========");
+                    commodity.setPicPath(file.getAbsolutePath());
+                dos.writeInt(1);
+            }
             return resultList;
         }finally {
 //            shutStream();
         }
     }
 
-    public static int addGoodsToServer(String userID, String name, double price, int nums, int isAuction, Date postDate) throws Exception{
+    /*
+    添加商品
+     */
+    public static int addGoodsToServer(String userID,Commodity commodity) throws Exception{
         try{
 
             sendCommand("AddGoods");
-            //生成商品号码
-            String goodID = CodecUtil.createOrderId();
-            dos.writeUTF(goodID);
-            dos.writeUTF(userID);
-            dos.writeUTF(name);
-            dos.writeDouble(price);
-            dos.writeInt(nums);
-            dos.writeInt(isAuction);
             ObjectOutputStream oos = new ObjectOutputStream(os);
-            oos.writeObject(postDate);
+            oos.writeObject(commodity);
+
+
+            String picPath = commodity.getPicPath();
+            File file = new File(picPath);
+            FileInputStream fis = new FileInputStream(file);
+            //发送文件名和长度
+            dos.writeUTF(file.getName());
+            dos.flush();
+            dos.writeLong(file.length());
+            dos.flush();
+
+            //开始传输文件
+            byte[] bytes = new byte[1024];
+            int length = 0;
+            long progress = 0;
+
+
+            while ((length=fis.read(bytes))!=-1){
+                os.write(bytes,0,length);
+                progress+=length;
+                System.out.print("| " + (100*progress/file.length()) + "% |");
+            }
+
+
+            System.out.println("======== 文件传输成功 ========");
+
             if(dis.readInt()==1){
                 System.out.println("here");
                 return 1;
             }else
                 return 0;
         }finally {
-//            shutStream();
+
         }
     }
 
@@ -165,11 +213,32 @@ public class CScontrol {
     public static List<Commodity> getAlreadyPost(String userID) throws Exception {
         try{
             List<Commodity> commodities;
-
             sendCommand("getAlreadyPost");
             dos.writeUTF(userID);
+            dos.flush();
             ObjectInputStream ois = new ObjectInputStream(is);
             commodities = (List<Commodity>) ois.readObject();
+            //接受图片
+            for (Commodity commodity : commodities) {
+                    String fileName = dis.readUTF();
+                    long fileLength = dis.readLong();
+                    File directory = new File("D:\\Design\\Client");
+                    File file = new File(directory.getAbsolutePath() + File.separatorChar + fileName);
+                    FileOutputStream fos = new FileOutputStream(file);
+                    //开始接受文件
+                    byte[] bytes = new byte[1024];
+                    int length = 0;
+
+                    while ((length = dis.read(bytes)) != -1) {
+                        fos.write(bytes, 0, length);
+                        fos.flush();
+                        if (fileLength == file.length()) break;
+                    }
+                    System.out.println("======== 获取商品图片成功 [File Name：" + fileName + "] ========");
+                    commodity.setPicPath(file.getAbsolutePath());
+
+                dos.writeInt(1);
+            }
             return commodities;
         }finally {
 //            shutStream();

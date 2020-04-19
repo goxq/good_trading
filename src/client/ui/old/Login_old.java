@@ -1,5 +1,6 @@
-package client.ui;
+package client.ui.old;
 
+import client.ui.MainPage;
 import common.entity.User;
 
 import client.CScontrol;
@@ -8,7 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 
-public class Login extends JFrame implements ActionListener {
+public class Login_old extends JFrame implements ActionListener {
     JTextField userText;
     JPasswordField passText;
     JButton loginButton;
@@ -18,7 +19,7 @@ public class Login extends JFrame implements ActionListener {
 
     User user1;
 
-    public Login() {
+    public Login_old() {
         super("校园闲置交易系统");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(300, 200);
@@ -84,12 +85,12 @@ public class Login extends JFrame implements ActionListener {
                 }
             }
         } else if (e.getSource() == registerButton) {
-            new Register();
+            new Register_old();
         }
     }
 
     public static void main(String[] args) {
-        new Login();
+        new Login_old();
     }
 }
 

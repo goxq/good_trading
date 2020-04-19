@@ -1,24 +1,20 @@
-package client.ui;
+package client.ui.old;
 
-import client.CScontrol;
-import com.sun.tools.javac.Main;
-import common.entity.Commodity;
 
+import client.ui.old.MainPage_old;
 
 import javax.swing.*;
-import java.awt.*;
-import java.util.List;
 
-public class TableRefreshThread implements Runnable{
+public class TableRefreshThread_old implements Runnable{
     @Override
     public void run() {
         try {
             while (true) {
-                if(MainPage.connectionStatus==0){
+                if(MainPage_old.connectionStatus==0){
                     JOptionPane.showMessageDialog(null, "无法连接到服务器！");
                 }
                 Thread.sleep(10000);
-                MainPage.table.setModel(MainPage.getTableModel());
+                MainPage_old.table.setModel(MainPage_old.getTableModel());
             }
         } catch (Exception e) {
             e.printStackTrace();

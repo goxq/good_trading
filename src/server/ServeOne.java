@@ -3,6 +3,8 @@ package server;
 import client.connect.CodecUtil;
 import common.entity.*;
 import server.db.DbConnect;
+
+import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.*;
 import java.util.Date;
@@ -75,17 +77,7 @@ public class ServeOne implements Runnable {
 //        if (os != null)
 //            os.close();
 //    }
-    private void getGoodsList() throws Exception {
-        try{
 
-            List<Commodity> list = DbConnect.getGoodsList();
-            ObjectOutputStream oos = new ObjectOutputStream(os);
-            oos.writeObject(list);
-        }finally {
-//            shutStream();
-
-        }
-    }
 
     private void getGoodsListLen() throws Exception {
         try{
@@ -151,27 +143,81 @@ public class ServeOne implements Runnable {
 
     }
 
+    /*
+    获取商品列表
+     */
+    private void getGoodsList() throws Exception {
+        try{
+            List<Commodity> list = DbConnect.getGoodsList();
+            ObjectOutputStream oos = new ObjectOutputStream(os);
+            oos.writeObject(list);
+            for (Commodity commodity : list) {
+                    String picPath = commodity.getPicPath();
+                    File file = new File(picPath);
+                    FileInputStream fis = new FileInputStream(file);
+
+                    //发送文件名和长度
+                    dos.writeUTF(file.getName());
+                    dos.flush();
+                    dos.writeLong(file.length());
+                    dos.flush();
+
+                    //开始传输文件
+                    byte[] bytes = new byte[1024];
+                    int length = 0;
+//                    long progress = 0;
+
+                    while ((length = fis.read(bytes)) != -1) {
+                        dos.write(bytes, 0, length);
+//                        progress += length;
+//                        System.out.print("| " + (100 * progress / file.length()) + "% |");
+                        dos.flush();
+                    }
+                    System.out.println("======== 文件传输成功 ========");
+                    dos.flush();
+
+                dis.readInt();
+            }
+
+        }finally {
+//            shutStream();
+
+        }
+    }
+
+    /*
+    添加商品
+     */
     private void AddGoods() throws Exception{
         try{
-            String userID;
-            String name;
-            double price;
-            int nums;
-            int isAuction;
-            Date postDate;
-            String goodID;
-
-            goodID=dis.readUTF(dis);
-            userID=dis.readUTF(dis);
-            name=dis.readUTF(dis);
-            price = dis.readDouble();
-            nums= dis.readInt();
-            isAuction = dis.readInt();
-
             ObjectInputStream ois = new ObjectInputStream(ins);
-            postDate = (Date)ois.readObject();
-            DbConnect.addGoods(goodID,userID,price,name,nums,isAuction,postDate);//将商品写入commodity表（商品列表）
-            DbConnect.addToAlreadyPost(goodID,userID,price,name,nums,isAuction,postDate);//将商品写入已发布
+            Commodity commodity = (Commodity) ois.readObject();
+            String goodID=commodity.getId();
+            String userID=commodity.getUserID();
+            String name=commodity.getName();
+            double price =commodity.getPrice();
+            int nums= commodity.getNums();
+            int isAuction = commodity.getIsAuction();
+            Date date = commodity.getPostDate();
+
+            //下面接受图片
+            String fileName = dis.readUTF();
+            long fileLength = dis.readLong();
+            File directory = new File("D:\\Design\\Server");
+            File file = new File(directory.getAbsolutePath() + File.separatorChar +fileName);
+            FileOutputStream fos = new FileOutputStream(file);
+            //开始接受文件
+            byte[] bytes = new byte[1024];
+            int length = 0;
+
+            while((length = ins.read(bytes)) != -1) {
+                fos.write(bytes, 0, length);
+                if(fileLength==file.length()) break;
+            }
+            System.out.println("======== 文件接收成功 [File Name：" + fileName + "] ========");
+
+            DbConnect.addGoods(goodID,userID,price,name,nums,isAuction,date,file.getAbsolutePath());//将商品写入commodity表（商品列表）
+            DbConnect.addToAlreadyPost(goodID,userID,price,name,nums,isAuction,date,file.getAbsolutePath());//将商品写入已发布表
             dos.writeInt(1);
         }finally {
 //            shutStream();
@@ -209,9 +255,37 @@ public class ServeOne implements Runnable {
             List<Commodity> alreadyPostList = DbConnect.getAlreadyPost(userID);
             ObjectOutputStream oos = new ObjectOutputStream(os);
             oos.writeObject(alreadyPostList);
+            for (Commodity commodity : alreadyPostList) {
+                String picPath = commodity.getPicPath();
 
+
+                    File file = new File(picPath);
+                    FileInputStream fis = new FileInputStream(file);
+
+                    //发送文件名和长度
+                    dos.writeUTF(file.getName());
+                    dos.flush();
+                    dos.writeLong(file.length());
+                    dos.flush();
+
+                    //开始传输文件
+                    byte[] bytes = new byte[1024];
+                    int length = 0;
+//                    long progress = 0;
+
+                    while ((length = fis.read(bytes)) != -1) {
+                        dos.write(bytes, 0, length);
+//                        progress += length;
+//                        System.out.print("| " + (100 * progress / file.length()) + "% |");
+                        dos.flush();
+                    }
+                    System.out.println("======== 文件传输成功 ========");
+                    dos.flush();
+
+                dis.readInt();
+            }
         }finally {
-//            shutStream();
+
         }
     }
     private void getOrderList() throws Exception{

@@ -59,10 +59,11 @@ public class DbConnect {
         }
     }
 
-    public static void addGoods(String goodId, String userID, double price, String name, int nums, int isAuction, Date postDate) {
+    public static void addGoods(String goodId, String userID, double price, String name, int nums, int isAuction, Date postDate,String picPath) {
         try{
             connectDb();
-            ps=ct.prepareStatement("insert into commodity (id,userID,price,name,nums,isAuction,postDate) values (?,?,?,?,?,?,?)");
+            System.out.println("在数据库");
+            ps=ct.prepareStatement("insert into commodity (id,userID,price,name,nums,isAuction,postDate,picPath) values (?,?,?,?,?,?,?,?)");
             ps.setString(1,goodId);//生成商品号
             ps.setString(2,userID);
             ps.setDouble(3,price);
@@ -71,6 +72,7 @@ public class DbConnect {
             ps.setInt(6,isAuction);
             java.sql.Timestamp date = new java.sql.Timestamp(postDate.getTime());
             ps.setTimestamp(7,date);
+            ps.setString(8,picPath);
             ps.executeUpdate();
         }catch (Exception e){
             e.printStackTrace();
@@ -80,6 +82,27 @@ public class DbConnect {
             }catch (Exception ee){
                 ee.printStackTrace();
             }
+        }
+    }
+    /*
+   将商品写入指定用户already_post_commodity表
+    */
+    public static void addToAlreadyPost(String commodityID, String userID, double price, String name, int nums, int isAuction, Date postDate,String picPath) throws SQLException {
+        try{
+            connectDb();
+            ps = ct.prepareStatement("insert into already_post_commodity(id,userID,price,name,nums,isAuction,postDate,picPath)values (?,?,?,?,?,?,?,?)");
+            ps.setString(1,commodityID);
+            ps.setString(2,userID);
+            ps.setDouble(3,price);
+            ps.setString(4,name);
+            ps.setInt(5,nums);
+            ps.setInt(6,isAuction);
+            java.sql.Timestamp date = new java.sql.Timestamp(postDate.getTime());
+            ps.setTimestamp(7,date);
+            ps.setString(8,picPath);
+            ps.executeUpdate();
+        }finally {
+            shut();
         }
     }
     public static int getGoodsListLength() throws SQLException {
@@ -99,7 +122,7 @@ public class DbConnect {
     public static List<Commodity> getGoodsList() throws SQLException{
         try{
             connectDb();
-            ps = ct.prepareStatement("select id,userID,name,price,nums,isAuction,postDate from commodity");
+            ps = ct.prepareStatement("select id,userID,name,price,nums,isAuction,postDate,picPath from commodity");
             rs = ps.executeQuery();
             List<Commodity> commodityList = new ArrayList<Commodity>();
             while (rs.next()){
@@ -110,7 +133,9 @@ public class DbConnect {
                 int nums = rs.getInt(5);
                 int Auction = rs.getInt(6);
                 Date date = new Date(rs.getTimestamp(7).getTime());
+                String picPath = rs.getString(8);
                 Commodity commodity = new Commodity(id,userID,price,name,nums,Auction,date);//每一条商品都是一个对象
+                commodity.setPicPath(picPath);
                 commodityList.add(commodity);
             }
             return commodityList;
@@ -208,26 +233,7 @@ public class DbConnect {
     }
 
 
-    /*
-    将商品写入指定用户already_post_commodity表
-     */
-    public static void addToAlreadyPost(String commodityID, String userID, double price, String name, int nums, int isAuction, Date postDate) throws SQLException {
-        try{
-            connectDb();
-            ps = ct.prepareStatement("insert into already_post_commodity(id,userID,price,name,nums,isAuction,postDate)values (?,?,?,?,?,?,?)");
-            ps.setString(1,commodityID);
-            ps.setString(2,userID);
-            ps.setDouble(3,price);
-            ps.setString(4,name);
-            ps.setInt(5,nums);
-            ps.setInt(6,isAuction);
-            java.sql.Timestamp date = new java.sql.Timestamp(postDate.getTime());
-            ps.setTimestamp(7,date);
-            ps.executeUpdate();
-        }finally {
-            shut();
-        }
-    }
+
 
     /*
     查询数据库获取指定用户已发布商品列表
@@ -236,7 +242,7 @@ public class DbConnect {
         try{
             List<Commodity> commodities = new ArrayList<Commodity>();
             connectDb();
-            ps=ct.prepareStatement("select * from commodity where userID = ?");
+            ps=ct.prepareStatement("select * from already_post_commodity where userID = ?");
             ps.setString(1,userID);
             rs = ps.executeQuery();
             while (rs.next()){
@@ -247,7 +253,9 @@ public class DbConnect {
                 int isAuction = rs.getInt(6);
                 java.sql.Timestamp timestamp = rs.getTimestamp(7);
                 Date date = new Date(timestamp.getTime());
+                String picPath = rs.getString(8);
                 Commodity commodity = new Commodity(id,userID,price,name,nums,isAuction,date);
+                commodity.setPicPath(picPath);
                 commodities.add(commodity);
             }
             return commodities;
@@ -356,6 +364,7 @@ public class DbConnect {
         System.out.println(userList.get(0).getUserID());
         return userList;
     }
+
 }
 
 

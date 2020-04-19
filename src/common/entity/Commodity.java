@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 public class Commodity implements java.io.Serializable {
+    private static final long serialVersionUID = 6680730582893488539L;
     private String id;
     private String userID;
     private double price;
@@ -11,7 +12,11 @@ public class Commodity implements java.io.Serializable {
     private int nums;
     private int isAuction;
     private Date postDate;//商品发布时间
+    private String picPath;
     private List<Comment> commentList;//评论列表
+
+    public Commodity() {
+    }
 
     public String getId() {
         return id;
@@ -69,7 +74,12 @@ public class Commodity implements java.io.Serializable {
         this.postDate = postDate;
     }
 
-    public Commodity() {
+    public String getPicPath() {
+        return picPath;
+    }
+
+    public void setPicPath(String picPath) {
+        this.picPath = picPath;
     }
 
     public List<Comment> getCommentList() {
@@ -88,30 +98,5 @@ public class Commodity implements java.io.Serializable {
         this.nums = nums;
         this.isAuction = isAuction;
         this.postDate = postDate;
-    }
-
-    @Override
-    public String toString() {
-        return "Commodity{" +
-                "id='" + id + '\'' +
-                ", userID='" + userID + '\'' +
-                ", price=" + price +
-                ", name='" + name + '\'' +
-                ", nums=" + nums +
-                ", isAuction=" + isAuction +
-                ", postDate=" + postDate +
-                ", commentList=" + commentList +
-                '}';
-    }
-
-    public Commodity(String id, String userID, double price, String name, int nums, int isAuction, Date postDate, List<Comment> commentList) {
-        this.id = id;
-        this.userID = userID;
-        this.price = price;
-        this.name = name;
-        this.nums = nums;
-        this.isAuction = isAuction;
-        this.postDate = postDate;
-        this.commentList = commentList;
     }
 }

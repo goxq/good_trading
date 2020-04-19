@@ -3,6 +3,12 @@ package client.ui.util;
 import java.awt.*;
 
 public class MyColor {
+    public static final Color enter_font = new Color(255,255,255);
+    public static final Color exit_font = new Color(192,199,211);
+    public static final Color exit_background = new Color(41,45,50);
+    public static final Color enter_background = new Color(28,65,89);
+
+
     public static final Color RED_50 = new Color (255, 235, 238);
     public static final Color RED_100 = new Color (255, 205, 210);
     public static final Color RED_200 = new Color (239, 154, 154);

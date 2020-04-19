@@ -1,5 +1,4 @@
-package client.ui;
-import client.CScontrol;
+package client.ui.old;
 import common.entity.Commodity;
 import common.entity.User;
 
@@ -10,7 +9,7 @@ import java.awt.event.ActionListener;
 import java.util.Date;
 
 
-public class AddGoods extends JFrame implements ActionListener {
+public class AddGoods_old extends JFrame implements ActionListener {
     JTextField jtfCommodityName;
     JTextField jtfCommodityPrice;
     JTextField jtfCommodityNums;
@@ -31,7 +30,7 @@ public class AddGoods extends JFrame implements ActionListener {
 
     User user1;
     Commodity commodity1;
-    public AddGoods(User user3){//接受从别的页面传来的user
+    public AddGoods_old(User user3){//接受从别的页面传来的user
         super("添加商品");
         user1 = user3;
         commodity1 = new Commodity();
@@ -126,10 +125,10 @@ public class AddGoods extends JFrame implements ActionListener {
     public void add(){
 
         try{
-            int result = CScontrol.addGoodsToServer(user1.getUserID(),commodity1.getName(),commodity1.getPrice(),commodity1.getNums(),commodity1.getIsAuction(),commodity1.getPostDate());
-            if(result==1)
+            //int result = CScontrol.addGoodsToServer(user1.getUserID(),commodity1.getName(),commodity1.getPrice(),commodity1.getNums(),commodity1.getIsAuction(),commodity1.getPostDate());
+            // if(result==1)
                 JOptionPane.showMessageDialog(this,"添加成功！");
-            else
+            //else
                 JOptionPane.showMessageDialog(this,"添加失败！");
         }
         catch (Exception e){
@@ -140,6 +139,6 @@ public class AddGoods extends JFrame implements ActionListener {
 
     public static void main(String[] args) {
         User userInMainForTest = new User("admin","admin123");
-        new AddGoods(userInMainForTest);
+        new AddGoods_old(userInMainForTest);
     }
 }
