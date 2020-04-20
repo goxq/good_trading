@@ -158,7 +158,7 @@ class MainPage_old extends JFrame implements ActionListener {
     public static DefaultTableModel getTableModel() {
 
         try {
-            commodityList = CScontrol.getGoodsListToServer();
+            commodityList = CScontrol.getGoodsListToServer(123+"");
             tableContent = new Object[commodityList.size()][4];
             for (int i = 0; i < commodityList.size(); i++) {
                 tableContent[i][0] = commodityList.get(i).getName();

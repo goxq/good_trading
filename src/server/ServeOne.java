@@ -1,10 +1,9 @@
 package server;
 
-import client.connect.CodecUtil;
 import common.entity.*;
-import server.db.DbConnect;
+import server.db.DbConnectTest;
+import server.db.DbHandle;
 
-import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.*;
 import java.util.Date;
@@ -18,10 +17,9 @@ public class ServeOne implements Runnable {
     DataOutputStream dos;
     InputStream ins;
     DataInputStream dis;
-
     String command;
 
-    public ServeOne(Socket socket,String clientIP) {
+    public ServeOne(Socket socket, String clientIP) {
         this.socket = socket;
         this.clientIP = clientIP;
     }
@@ -30,7 +28,7 @@ public class ServeOne implements Runnable {
     public void run() {
         try {
 
-            while(true) {
+            while (true) {
                 os = socket.getOutputStream();
                 dos = new DataOutputStream(os);
 
@@ -52,18 +50,18 @@ public class ServeOne implements Runnable {
                     this.Buy();
                 else if (command.equals("getAlreadyPost"))
                     this.getAlreadyPost();
-                else if (command.equals("getOrderList"))
-                    this.getOrderList();
+                else if (command.equals("getBuyerOrderList"))
+                    this.getBuyerOrderList();
                 else if (command.equals("getCommentList"))
                     this.getCommentList();
                 else if (command.equals("addComment"))
                     this.addComment();
-                else if(command.equals("getAllUsers"))
+                else if (command.equals("getAllUsers"))
                     this.getAllUsers();
             }
         } catch (SocketException e) {
-            System.out.println("连接 "+clientIP+" 已退出");
-        } catch (Exception ex){
+            System.out.println("连接 " + clientIP + " 已退出");
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
@@ -80,14 +78,15 @@ public class ServeOne implements Runnable {
 
 
     private void getGoodsListLen() throws Exception {
-        try{
-            int count = DbConnect.getGoodsListLength();
+        try {
+            int count = new DbHandle(new DbConnectTest().getConnection()).getGoodsListLength();
             dos.writeInt(count);
-        }finally {
+        } finally {
 //            shutStream();
         }
     }
-    private void Login(){
+
+    private void Login() {
         try {
             //登陆操作
             String username;
@@ -100,8 +99,8 @@ public class ServeOne implements Runnable {
             System.out.println("获取到password：" + password);
 
             //连接数据库查询得到结果rs
-            Boolean isSuccess = DbConnect.login_select(username,password);
-            if(isSuccess)
+            Boolean isSuccess = new DbHandle(new DbConnectTest().getConnection()).login_select(username, password) ;
+            if (isSuccess)
                 dos.writeUTF("success");
             else
                 dos.writeUTF("fail");
@@ -119,7 +118,7 @@ public class ServeOne implements Runnable {
     }
 
     private void Register() throws Exception {
-        try{
+        try {
             String username;
             String password;
 
@@ -128,15 +127,15 @@ public class ServeOne implements Runnable {
 
             //判断用户是否已经存在
             Boolean isExist;
-            isExist = DbConnect.register_select_isexist(username);
-            if(isExist){
+            isExist = new DbHandle(new DbConnectTest().getConnection()).register_select_isexist(username);
+            if (isExist) {
                 dos.writeUTF("isExist");
             }
 
             //开始注册
-            DbConnect.register(username,password);
+            new DbHandle(new DbConnectTest().getConnection()).register(username, password);
             dos.writeUTF("success");
-        }finally {
+        } finally {
 //            shutStream();
         }
 
@@ -147,39 +146,39 @@ public class ServeOne implements Runnable {
     获取商品列表
      */
     private void getGoodsList() throws Exception {
-        try{
-            List<Commodity> list = DbConnect.getGoodsList();
+        try {
+            List<Commodity> list = new DbHandle(new DbConnectTest().getConnection()).getGoodsList();
             ObjectOutputStream oos = new ObjectOutputStream(os);
             oos.writeObject(list);
             for (Commodity commodity : list) {
-                    String picPath = commodity.getPicPath();
-                    File file = new File(picPath);
-                    FileInputStream fis = new FileInputStream(file);
+                String picPath = commodity.getPicPath();
+                File file = new File(picPath);
+                FileInputStream fis = new FileInputStream(file);
 
-                    //发送文件名和长度
-                    dos.writeUTF(file.getName());
-                    dos.flush();
-                    dos.writeLong(file.length());
-                    dos.flush();
+                //发送文件名和长度
+                dos.writeUTF(file.getName());
+                dos.flush();
+                dos.writeLong(file.length());
+                dos.flush();
 
-                    //开始传输文件
-                    byte[] bytes = new byte[1024];
-                    int length = 0;
+                //开始传输文件
+                byte[] bytes = new byte[1024];
+                int length = 0;
 //                    long progress = 0;
 
-                    while ((length = fis.read(bytes)) != -1) {
-                        dos.write(bytes, 0, length);
+                while ((length = fis.read(bytes)) != -1) {
+                    dos.write(bytes, 0, length);
 //                        progress += length;
 //                        System.out.print("| " + (100 * progress / file.length()) + "% |");
-                        dos.flush();
-                    }
-                    System.out.println("======== 文件传输成功 ========");
                     dos.flush();
+                }
+                System.out.println("======== 文件传输成功 ========");
+                dos.flush();
 
                 dis.readInt();
             }
 
-        }finally {
+        } finally {
 //            shutStream();
 
         }
@@ -188,147 +187,171 @@ public class ServeOne implements Runnable {
     /*
     添加商品
      */
-    private void AddGoods() throws Exception{
-        try{
+    private void AddGoods() throws Exception {
+        try {
             ObjectInputStream ois = new ObjectInputStream(ins);
             Commodity commodity = (Commodity) ois.readObject();
-            String goodID=commodity.getId();
-            String userID=commodity.getUserID();
-            String name=commodity.getName();
-            double price =commodity.getPrice();
-            int nums= commodity.getNums();
+            String goodID = commodity.getId();
+            String userID = commodity.getUserID();
+            String name = commodity.getName();
+            double price = commodity.getPrice();
+            int nums = commodity.getNums();
             int isAuction = commodity.getIsAuction();
             Date date = commodity.getPostDate();
 
             //下面接受图片
             String fileName = dis.readUTF();
             long fileLength = dis.readLong();
-            File directory = new File("D:\\Design\\Server");
-            File file = new File(directory.getAbsolutePath() + File.separatorChar +fileName);
+            File directory = new File("D:\\Design\\Server\\" + commodity.getUserID());
+            File file = new File(directory.getAbsolutePath() + File.separatorChar + fileName);
             FileOutputStream fos = new FileOutputStream(file);
             //开始接受文件
             byte[] bytes = new byte[1024];
             int length = 0;
 
-            while((length = ins.read(bytes)) != -1) {
+            while ((length = ins.read(bytes)) != -1) {
                 fos.write(bytes, 0, length);
-                if(fileLength==file.length()) break;
+                if (fileLength == file.length()) break;
             }
             System.out.println("======== 文件接收成功 [File Name：" + fileName + "] ========");
 
-            DbConnect.addGoods(goodID,userID,price,name,nums,isAuction,date,file.getAbsolutePath());//将商品写入commodity表（商品列表）
-            DbConnect.addToAlreadyPost(goodID,userID,price,name,nums,isAuction,date,file.getAbsolutePath());//将商品写入已发布表
+            new DbHandle(new DbConnectTest().getConnection()).addGoods(goodID, userID, price, name, nums, isAuction, date, file.getAbsolutePath());//将商品写入commodity表（商品列表）
+            new DbHandle(new DbConnectTest().getConnection()).addToAlreadyPost(goodID, userID, price, name, nums, isAuction, date, file.getAbsolutePath());//将商品写入已发布表
             dos.writeInt(1);
-        }finally {
+        } finally {
 //            shutStream();
         }
     }
 
-    //点击购买按钮后。。。
-    private void Buy() throws Exception{
-        try{
-            Commodity commodity;
-            User buyer;
-            Date date;
-            int nums;//购买数量
-            String orderID;//订单编号
+    //普通购买
+    private void Buy() throws Exception {
+        try {
             ObjectInputStream ois = new ObjectInputStream(ins);
-            commodity = (Commodity)ois.readObject();
-            buyer = (User)ois.readObject();
-            date = (Date)ois.readObject();
-            nums = dis.readInt();
-            orderID = dis.readUTF();
-            DbConnect.addToOrder(orderID,commodity.getId(),buyer.getUserID(),commodity.getUserID(),commodity.getPrice(),
-                    commodity.getName(),nums,commodity.getIsAuction(),date);
+            Order order = (Order) ois.readObject();
+            order.setPicPath(new DbHandle(new DbConnectTest().getConnection()).getPicPathInServer(order.getCommodityID()));
+            new DbHandle(new DbConnectTest().getConnection()).addToOrder(order.getOrderID(), order.getCommodityID(), order.getBuyerID(), order.getSellerID()
+                    , order.getPrice(), order.getName(), order.getNums(), order.getIsAuction(), order.getBuyDate(), order.getPicPath());
             //把买到的商品从商品表里删除
-            DbConnect.deleteGoods(commodity.getId(),nums);
+            new DbHandle(new DbConnectTest().getConnection()).deleteGoods(order.getCommodityID(), order.getNums());
 
             dos.writeInt(1);
-        }finally {
+        } finally {
 //            shutStream();
         }
     }
 
     private void getAlreadyPost() throws Exception {
-        try{
-            String userID=dis.readUTF(dis);
-            List<Commodity> alreadyPostList = DbConnect.getAlreadyPost(userID);
+        try {
+            String userID = dis.readUTF(dis);
+            List<Commodity> alreadyPostList = new DbHandle(new DbConnectTest().getConnection()).getAlreadyPost(userID);
             ObjectOutputStream oos = new ObjectOutputStream(os);
             oos.writeObject(alreadyPostList);
             for (Commodity commodity : alreadyPostList) {
                 String picPath = commodity.getPicPath();
 
 
-                    File file = new File(picPath);
-                    FileInputStream fis = new FileInputStream(file);
+                File file = new File(picPath);
+                FileInputStream fis = new FileInputStream(file);
 
-                    //发送文件名和长度
-                    dos.writeUTF(file.getName());
-                    dos.flush();
-                    dos.writeLong(file.length());
-                    dos.flush();
+                //发送文件名和长度
+                dos.writeUTF(file.getName());
+                dos.flush();
+                dos.writeLong(file.length());
+                dos.flush();
 
-                    //开始传输文件
-                    byte[] bytes = new byte[1024];
-                    int length = 0;
+                //开始传输文件
+                byte[] bytes = new byte[1024];
+                int length = 0;
 //                    long progress = 0;
 
-                    while ((length = fis.read(bytes)) != -1) {
-                        dos.write(bytes, 0, length);
+                while ((length = fis.read(bytes)) != -1) {
+                    dos.write(bytes, 0, length);
 //                        progress += length;
 //                        System.out.print("| " + (100 * progress / file.length()) + "% |");
-                        dos.flush();
-                    }
-                    System.out.println("======== 文件传输成功 ========");
                     dos.flush();
+                }
+                System.out.println("======== 文件传输成功 ========");
+                dos.flush();
 
                 dis.readInt();
             }
-        }finally {
+        } finally {
 
         }
     }
-    private void getOrderList() throws Exception{
-        try{
+
+    /*
+    返回指定买家订单列表，作为买家的已购买
+     */
+    private void getBuyerOrderList() throws Exception {
+        try {
             List<Order> orderList;
             String userID;
             userID = dis.readUTF(dis);
-            orderList = DbConnect.getOrderList(userID);
+            orderList = new DbHandle(new DbConnectTest().getConnection()).getBuyerOrderList(userID);
             ObjectOutputStream oos = new ObjectOutputStream(os);
             oos.writeObject(orderList);
-        }finally {
+            //下面发送图片
+            for (Order order : orderList) {
+                String picPath = order.getPicPath();
+                File file = new File(picPath);
+                FileInputStream fis = new FileInputStream(file);
+
+                //发送文件名和长度
+                dos.writeUTF(file.getName());
+                dos.flush();
+                dos.writeLong(file.length());
+                dos.flush();
+
+                //开始传输文件
+                byte[] bytes = new byte[1024];
+                int length = 0;
+//                    long progress = 0;
+
+                while ((length = fis.read(bytes)) != -1) {
+                    dos.write(bytes, 0, length);
+//                        progress += length;
+//                        System.out.print("| " + (100 * progress / file.length()) + "% |");
+                    dos.flush();
+                }
+                System.out.println("服务器:在返回订单类图片======== 文件传输成功 ========");
+                dos.flush();
+
+                dis.readInt();
+            }
+
+        } finally {
 //            shutStream();
         }
     }
-    private void getCommentList() throws Exception{
-        List<Comment> commentList;
+
+    /*
+    获取指定商品的评论列表
+     */
+    private void getCommentList() throws Exception {
         String commodityID;
         commodityID = dis.readUTF(dis);
-        commentList = DbConnect.getCommentList(commodityID);
-
+        List<Comment> commentList = new DbHandle(new DbConnectTest().getConnection()).getCommentList(commodityID);
         ObjectOutputStream oos = new ObjectOutputStream(os);
         oos.writeObject(commentList);
     }
+
     /*
     给指定商品添加评论
      */
-    private void addComment() throws Exception{
-        String commodityID;
-        String userID;
-        String content;
+    private void addComment() throws Exception {
 
-        commodityID = dis.readUTF(dis);
-        userID=dis.readUTF(dis);
-        content=dis.readUTF(dis);
-
-        DbConnect.addComment(commodityID,userID,content);
+        ObjectInputStream ois = new ObjectInputStream(ins);
+        Comment comment = (Comment)ois.readObject();
+        new DbHandle(new DbConnectTest().getConnection()).addComment(comment.getCommodityID(),comment.getUserID(),comment.getContent(),comment.getDate());
     }
+
     /*
     查询用户列表并返回所有用户
      */
-    private void getAllUsers() throws Exception{
+    private void getAllUsers() throws Exception {
         ObjectOutputStream oos = new ObjectOutputStream(os);
-        oos.writeObject(DbConnect.getAllUsers());
+        oos.writeObject(new DbHandle(new DbConnectTest().getConnection()).getAllUsers());
     }
 
 }

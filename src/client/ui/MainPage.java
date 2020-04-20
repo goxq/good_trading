@@ -1,5 +1,6 @@
 package client.ui;
 
+import client.CScontrol;
 import client.ui.component.GBackGroundPanel;
 import client.ui.component.GButtonItem;
 import client.ui.util.MyColor;
@@ -20,24 +21,27 @@ public class MainPage extends JFrame {
     String clicked;
     GdsPanel gdsPanel;
     AlreadyPostPanel alreadyPostPanel;
+    AlreadyBuyPanel alreadyBuyPanel;
 
-    User user;
+    private User user;
 
 
     public static void main(String[] args) throws Exception {
-        User user = new User("admin", "123");
+        User user = new User("admin", "admin123");
+        CScontrol.loginToServer(user.getUserID(),user.getPassword());
         new MainPage(user);
     }
 
     public MainPage(User user) throws Exception {
         this.user = user;
+        this.setTitle("校园杂货店 当前用户: "+user.getUserID());
         setSize(width, height);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         bt1 = new GButtonItem("全部商品", null);
         bt2 = new GButtonItem("已购买", null);
-        bt3 = new GButtonItem("添加商品", null);
+        bt3 = new GButtonItem("发布商品", null);
         bt4 = new GButtonItem("我已发布",null);
 
         bt1.setFont(new Font("微软雅黑", Font.PLAIN, 20));
@@ -88,8 +92,12 @@ public class MainPage extends JFrame {
                 bt3.setForeground(MyColor.exit_font);
                 ((GButtonItem) e.getSource()).setForeground(MyColor.enter_font);
                 ((GButtonItem) e.getSource()).setBackground(MyColor.enter_background);
-
                 cl.show(right_panel, "jp_al_buy");
+                try {//更新界面
+                    alreadyBuyPanel.upDate();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
             }
 
             @Override
@@ -146,7 +154,6 @@ public class MainPage extends JFrame {
                     exception.printStackTrace();
                 }
             }
-
             @Override
             public void mouseExited(MouseEvent e) {
                 super.mouseExited(e);
@@ -165,21 +172,15 @@ public class MainPage extends JFrame {
         jp_left.add(bt3);
         jp_left.add(bt4);
 
-        cl = new CardLayout();
-        right_panel = new JPanel(cl);
+
 
         //1.商品列表
-        gdsPanel = new GdsPanel();
+        gdsPanel = new GdsPanel(this);
         JScrollPane jsp1 = new JScrollPane(gdsPanel);
 
         //2.已购买商品列表
-        JLabel[] al_buy = new JLabel[50];
-        jp_al_buy = new JPanel(new GridLayout(al_buy.length, 1));
-        JScrollPane jsp2 = new JScrollPane(jp_al_buy);
-        for (int i = 0; i < 50; i++) {
-            al_buy[i] = new JLabel(i + "这是已经购买的商品");
-            jp_al_buy.add(al_buy[i]);
-        }
+        alreadyBuyPanel = new AlreadyBuyPanel(user,this);
+        JScrollPane jsp3_alreadyBuy = new JScrollPane(alreadyBuyPanel);
 
         //3.添加商品panel
         AddGdsPanel addGdsPanel = new AddGdsPanel(user);
@@ -189,10 +190,11 @@ public class MainPage extends JFrame {
         alreadyPostPanel = new AlreadyPostPanel(user);
         JScrollPane jsp2_alreadyPost = new JScrollPane(alreadyPostPanel);
 
-
+        cl = new CardLayout();
+        right_panel = new JPanel(cl);
 
         right_panel.add(jsp1, "jp_gds");//商品列表
-        right_panel.add(jsp2, "jp_al_buy");//已购买
+        right_panel.add(jsp3_alreadyBuy, "jp_al_buy");//已购买
         right_panel.add(addGdsPanel, "addGdsPanel");
         right_panel.add(jsp2_alreadyPost,"alreadyPostPanel");
 
@@ -205,4 +207,20 @@ public class MainPage extends JFrame {
 
         setVisible(true);
     }
+    //管理card里的panel
+    public void addPanel(String name, JPanel panel){
+        this.right_panel.add(panel,name);
+    }
+    public void showPanel(String name){
+        this.cl.show(right_panel,name);
+        repaint();
+    }
+    public void deletePanel(JPanel panel){
+        this.right_panel.remove(panel);
+        System.out.println(panel+" 已从rightPanel中删除");
+    }
+    public String getUserId(){
+        return user.getUserID();
+    }
+
 }

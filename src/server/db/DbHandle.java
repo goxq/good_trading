@@ -1,5 +1,5 @@
 package server.db;
-import client.connect.CodecUtil;
+
 import common.entity.Comment;
 import common.entity.Commodity;
 import common.entity.Order;
@@ -10,38 +10,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
-public class DbConnect {
-    private static Connection ct;
-    private static PreparedStatement ps;
-    private static ResultSet rs;
-
-    public static void connectDb(){
-        try{
-            //1.加载驱动
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            //2.得到链接
-            ct=DriverManager.getConnection("jdbc:mysql://localhost:3306/mydesign?useUnicode = true " +
-                    "& characterEncoding = utf-8&useSSL = false&serverTimezone = Asia/Shanghai","root","123");
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-        finally {
-
-        }
+public class DbHandle {
+    Connection ct;
+    PreparedStatement ps;
+    ResultSet rs;
+    public DbHandle(Connection ct){
+        this.ct = ct;
     }
-    public static void shut() throws SQLException {
-        if (rs != null)
-            rs.close();
-        if (ps != null)
-            ps.close();
-        if (ct != null)
-            ct.close();
-    }
-    public static boolean login_select(String username, String password) throws SQLException {
+    public boolean login_select(String username, String password) throws SQLException {
         try{
-            connectDb();
             ps = ct.prepareStatement("select userID,password from user");
             rs = ps.executeQuery();
             while (rs.next()) {
@@ -53,15 +30,21 @@ public class DbConnect {
                     }
                 }
             }
-            return false;
+        }catch (Exception e){
+            e.printStackTrace();
         }finally {
-            shut();
+            if(rs!=null)
+                rs.close();
+            if(ps!=null)
+                ps.close();
+            if(ct!=null)
+                ct.close();
         }
+        return false;
     }
-
-    public static void addGoods(String goodId, String userID, double price, String name, int nums, int isAuction, Date postDate,String picPath) {
+    public  void addGoods(String goodId, String userID, double price, String name, int nums, int isAuction, Date postDate, String picPath) throws SQLException{
         try{
-            connectDb();
+            
             System.out.println("在数据库");
             ps=ct.prepareStatement("insert into commodity (id,userID,price,name,nums,isAuction,postDate,picPath) values (?,?,?,?,?,?,?,?)");
             ps.setString(1,goodId);//生成商品号
@@ -77,19 +60,20 @@ public class DbConnect {
         }catch (Exception e){
             e.printStackTrace();
         }finally {
-            try{
-                shut();
-            }catch (Exception ee){
-                ee.printStackTrace();
-            }
+            if(rs!=null)
+                rs.close();
+            if(ps!=null)
+                ps.close();
+            if(ct!=null)
+                ct.close();
         }
     }
     /*
    将商品写入指定用户already_post_commodity表
     */
-    public static void addToAlreadyPost(String commodityID, String userID, double price, String name, int nums, int isAuction, Date postDate,String picPath) throws SQLException {
+    public  void addToAlreadyPost(String commodityID, String userID, double price, String name, int nums, int isAuction, Date postDate,String picPath) throws SQLException {
         try{
-            connectDb();
+            
             ps = ct.prepareStatement("insert into already_post_commodity(id,userID,price,name,nums,isAuction,postDate,picPath)values (?,?,?,?,?,?,?,?)");
             ps.setString(1,commodityID);
             ps.setString(2,userID);
@@ -102,26 +86,35 @@ public class DbConnect {
             ps.setString(8,picPath);
             ps.executeUpdate();
         }finally {
-            shut();
+            if(rs!=null)
+                rs.close();
+            if(ps!=null)
+                ps.close();
+            if(ct!=null)
+                ct.close();
         }
     }
-    public static int getGoodsListLength() throws SQLException {
+    public  int getGoodsListLength() throws SQLException {
         try{
-            connectDb();
+            
             ps = ct.prepareStatement("select count(id) from commodity");
             rs = ps.executeQuery();
             rs.next();
             int count = 0;
             count = rs.getInt(1);
             return count;
-
         }finally {
-            shut();
+            if(rs!=null)
+                rs.close();
+            if(ps!=null)
+                ps.close();
+            if(ct!=null)
+                ct.close();
         }
     }
-    public static List<Commodity> getGoodsList() throws SQLException{
+    public List<Commodity> getGoodsList() throws SQLException{
         try{
-            connectDb();
+            
             ps = ct.prepareStatement("select id,userID,name,price,nums,isAuction,postDate,picPath from commodity");
             rs = ps.executeQuery();
             List<Commodity> commodityList = new ArrayList<Commodity>();
@@ -134,18 +127,24 @@ public class DbConnect {
                 int Auction = rs.getInt(6);
                 Date date = new Date(rs.getTimestamp(7).getTime());
                 String picPath = rs.getString(8);
-                Commodity commodity = new Commodity(id,userID,price,name,nums,Auction,date);//每一条商品都是一个对象
-                commodity.setPicPath(picPath);
+                List<Comment> commentList = new DbHandle(new DbConnectTest().getConnection()).getCommentList(id);
+                Commodity commodity = new Commodity(id,userID,price,name,nums,Auction,date,picPath,commentList);//每一条商品都是一个对象
+                //commodity.setPicPath(picPath);
                 commodityList.add(commodity);
             }
             return commodityList;
         }finally {
-            shut();
+            if(rs!=null)
+                rs.close();
+            if(ps!=null)
+                ps.close();
+            if(ct!=null)
+                ct.close();
         }
     }
-    public static boolean register_select_isexist(String username) throws SQLException{
+    public  boolean register_select_isexist(String username) throws SQLException{
         try{
-            connectDb();
+            
             ps = ct.prepareStatement("select userID from user");
             rs = ps.executeQuery();
             while(rs.next()){
@@ -156,30 +155,40 @@ public class DbConnect {
             }
             return false;
         }finally {
-            shut();
+            if(rs!=null)
+                rs.close();
+            if(ps!=null)
+                ps.close();
+            if(ct!=null)
+                ct.close();
         }
     }
 
-    public static void register(String username,String password) throws SQLException{
+    public  void register(String username,String password) throws SQLException{
         try{
-            connectDb();
+            
             ps = ct.prepareStatement("insert into user(userID,password) values (?,?)");
             ps.setString(1,username);
             ps.setString(2,password);
             ps.executeUpdate();
 
         }finally {
-            shut();
+            if(rs!=null)
+                rs.close();
+            if(ps!=null)
+                ps.close();
+            if(ct!=null)
+                ct.close();
         }
     }
 
     /*
     点击购买商品后，添加到order表
      */
-    public static void addToOrder(String orderID,String commodityID, String buyerID, String sellerID,double price,String name,int nums, int isAuction,Date date) throws SQLException {
+    public  void addToOrder(String orderID,String commodityID, String buyerID, String sellerID,double price,String name,int nums, int isAuction,Date date,String picPath) throws SQLException {
         try{
-            connectDb();
-            ps = ct.prepareStatement("insert into orders(orderID,commodityID,buyerID,sellerID,price,name,nums,isAuction,date)values (?,?,?,?,?,?,?,?,?)");
+            
+            ps = ct.prepareStatement("insert into orders(orderID,commodityID,buyerID,sellerID,price,name,nums,isAuction,date,picPath)values (?,?,?,?,?,?,?,?,?,?)");
             ps.setString(1,orderID);
             ps.setString(2,commodityID);
             ps.setString(3,buyerID);
@@ -190,45 +199,66 @@ public class DbConnect {
             ps.setInt(8,isAuction);
             java.sql.Timestamp date_sql = new java.sql.Timestamp(date.getTime());
             ps.setTimestamp(9,date_sql);
+            ps.setString(10,picPath);
             ps.executeUpdate();
         }finally {
-            shut();
+            if(rs!=null)
+                rs.close();
+            if(ps!=null)
+                ps.close();
+            if(ct!=null)
+                ct.close();
         }
     }
 
     /*
     给出商品id，从commodity表中删除指定商品
      */
-    public static void deleteGoods(String commodityID) throws SQLException {
+    public  void deleteGoods(String commodityID) throws SQLException {
         try{
-            connectDb();
+            
             ps = ct.prepareStatement("delete from commodity where id = ?");
             ps.setString(1,commodityID);
+            ps.executeUpdate();
         }finally {
-            shut();
+            if(rs!=null)
+                rs.close();
+            if(ps!=null)
+                ps.close();
+            if(ct!=null)
+                ct.close();
         }
     }
     /*
     给出商品id，从commodity表删除指定数量商品
      */
-    public static void deleteGoods(String commodityID,int deleteNums) throws SQLException {
+    public  void deleteGoods(String commodityID,int deleteNums) throws SQLException {
         try{
             int nowNums;
-           connectDb();
-           ps=ct.prepareStatement("select nums from commodity where id = ?");
-           ps.setString(1,commodityID);
-           rs=ps.executeQuery();
-           rs.next();
-           nowNums = rs.getInt(1);
-           if(nowNums-deleteNums>0){
-               ps=ct.prepareStatement("update commodity set nums = ? where id = ?");
-               ps.setInt(1,nowNums-deleteNums);
-               ps.setString(2,commodityID);
-           }else {
-               deleteGoods(commodityID);
-           }
+            
+            ps=ct.prepareStatement("select nums from commodity where id = ?");
+            ps.setString(1,commodityID);
+            rs=ps.executeQuery();
+            rs.next();
+            nowNums = rs.getInt(1);
+            System.out.println("数据库中修改之前当前商品的数量："+nowNums);
+            if(nowNums-deleteNums>0){
+                System.out.println(deleteNums);
+                ps=ct.prepareStatement("update commodity set nums = ? where id = ?");
+                ps.setInt(1,nowNums-deleteNums);
+                ps.setString(2,commodityID);
+                ps.executeUpdate();
+                System.out.println("数据库中商品数量修改已完成");
+            }else {
+                deleteGoods(commodityID);
+            }
         }finally {
-            shut();
+            if(rs!=null)
+                rs.close();
+            if(ps!=null)
+                ps.close();
+            if(ct!=null)
+                ct.close();
         }
     }
 
@@ -238,10 +268,10 @@ public class DbConnect {
     /*
     查询数据库获取指定用户已发布商品列表
      */
-    public static List<Commodity> getAlreadyPost(String userID)throws SQLException{
+    public  List<Commodity> getAlreadyPost(String userID)throws SQLException{
         try{
             List<Commodity> commodities = new ArrayList<Commodity>();
-            connectDb();
+            
             ps=ct.prepareStatement("select * from already_post_commodity where userID = ?");
             ps.setString(1,userID);
             rs = ps.executeQuery();
@@ -254,23 +284,29 @@ public class DbConnect {
                 java.sql.Timestamp timestamp = rs.getTimestamp(7);
                 Date date = new Date(timestamp.getTime());
                 String picPath = rs.getString(8);
-                Commodity commodity = new Commodity(id,userID,price,name,nums,isAuction,date);
+                List<Comment> commentList = new DbHandle(new DbConnectTest().getConnection()).getCommentList(userID);
+                Commodity commodity = new Commodity(id,userID,price,name,nums,isAuction,date,picPath,commentList);
                 commodity.setPicPath(picPath);
                 commodities.add(commodity);
             }
             return commodities;
 
         }finally {
-           shut();
+            if(rs!=null)
+                rs.close();
+            if(ps!=null)
+                ps.close();
+            if(ct!=null)
+                ct.close();
         }
     }
 
     /*
-    给userID查询与其有关的订单，无论是seller还是buyer（查询order表）
+    给userID查询与其有关买家的订单，作为买家的已购买
      */
-    public static List<Order> getOrderList(String userID) throws SQLException {
+    public  List<Order> getBuyerOrderList(String userID) throws SQLException {
         try {
-            connectDb();
+            
             List<Order> orderList = new ArrayList<Order>();
             String orderID;
             String commodityID;
@@ -281,9 +317,10 @@ public class DbConnect {
             int nums;
             int isAuction;
             Date date;
-            ps = ct.prepareStatement("select * from orders where buyerID = ? or sellerID = ?");
+            String picPath;
+            //ps = ct.prepareStatement("select * from orders where buyerID = ? or sellerID = ?");
+            ps = ct.prepareStatement("select * from orders where buyerID = ?");
             ps.setString(1,userID);
-            ps.setString(2,userID);
             rs= ps.executeQuery();
             while(rs.next()){
                 orderID = rs.getString(1);
@@ -296,39 +333,49 @@ public class DbConnect {
                 isAuction = rs.getInt(8);
                 java.sql.Timestamp timestamp = rs.getTimestamp(9);
                 date = new Date(timestamp.getTime());
-                Order order = new Order(orderID,commodityID,buyerID,sellerID,price,name,nums,isAuction,date);
+                picPath = rs.getString(10);
+                Order order = new Order(orderID,commodityID,buyerID,sellerID,price,name,nums,isAuction,date,picPath);
                 orderList.add(order);
             }
             return orderList;
         }finally {
-            shut();
+            if(rs!=null)
+                rs.close();
+            if(ps!=null)
+                ps.close();
+            if(ct!=null)
+                ct.close();
         }
     }
-    
+
     /*
     给商品号userID，添加评论（存到comment表）
      */
-    public static void addComment(String commodityID,String userID,String content) throws SQLException {
+    public  void addComment(String commodityID,String userID,String content,Date date) throws SQLException {
         try{
-            connectDb();
+            
             ps=ct.prepareStatement("insert into comment (commodityID,content,userID,date) values (?,?,?,?)");
             ps.setString(1,commodityID);
             ps.setString(2,content);
             ps.setString(3,userID);
-            Date date = new Date();
             java.sql.Timestamp timestamp = new Timestamp(date.getTime());
             ps.setTimestamp(4, timestamp);
             ps.executeUpdate();
         }finally {
-            shut();
+            if(rs!=null)
+                rs.close();
+            if(ps!=null)
+                ps.close();
+            if(ct!=null)
+                ct.close();
         }
     }
     /*
     给出指定商品的评论列表
      */
-    public static List<Comment> getCommentList(String commodityID) throws SQLException {
+    public  List<Comment> getCommentList(String commodityID) throws SQLException {
         try{
-            connectDb();
+            
             String content;
             String userID;
             Date date;
@@ -337,36 +384,63 @@ public class DbConnect {
             ps.setString(1,commodityID);
             rs=ps.executeQuery();
             while (rs.next()){
-                content = rs.getString(1);
-                userID = rs.getString(2);
+                commodityID = rs.getString(1);
+                content = rs.getString(2);
+                userID = rs.getString(3);
                 date = new Date(rs.getTimestamp(4).getTime());
-                Comment comment = new Comment(content,userID,date);
+                Comment comment = new Comment(commodityID,content,userID,date);
                 commentList.add(comment);
             }
             return commentList;
         }finally {
-            shut();
+            if(rs!=null)
+                rs.close();
+            if(ps!=null)
+                ps.close();
+            if(ct!=null)
+                ct.close();
         }
     }
     /*
     获取已经注册的用户列表
      */
-    public static List<User> getAllUsers() throws SQLException{
-        connectDb();
+    public  List<User> getAllUsers() throws SQLException{
         List<User> userList = new ArrayList<>();
-        ps=ct.prepareStatement("select userID from user;");
-        rs=ps.executeQuery();
-        while (rs.next()){
-            User user = new User();
-            user.setUserID(rs.getString(1));
-            userList.add(user);
+        try{
+            ps=ct.prepareStatement("select userID from user;");
+            rs=ps.executeQuery();
+            while (rs.next()){
+                User user = new User();
+                user.setUserID(rs.getString(1));
+                userList.add(user);
+            }
+        }finally {
+            if(rs!=null)
+                rs.close();
+            if(ps!=null)
+                ps.close();
+            if(ct!=null)
+                ct.close();
         }
-        System.out.println(userList.get(0).getUserID());
         return userList;
     }
-
+    /*
+    在商品列表中查询指定商品图片在服务器的路径
+     */
+    public String getPicPathInServer(String goodId) throws SQLException{
+        try{
+            ps= ct.prepareStatement("select picPath from commodity where id = ?");
+            ps.setString(1,goodId);
+            rs = ps.executeQuery();
+            rs.next();
+            return rs.getString(1);
+        }finally {
+            if(rs!=null)
+                rs.close();
+            if(ps!=null)
+                ps.close();
+            if(ct!=null)
+                ct.close();
+        }
+    }
 }
-
-
-
-

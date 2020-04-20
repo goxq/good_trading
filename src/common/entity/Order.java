@@ -2,7 +2,8 @@ package common.entity;
 
 import java.util.Date;
 
-public class Order {
+public class Order implements java.io.Serializable{
+    private static final long serialVersionUID = -2508573542830625357L;
     private String orderID;
     private String commodityID;
     private String buyerID;
@@ -12,6 +13,28 @@ public class Order {
     private int nums;
     private int isAuction;
     private Date buyDate;
+    private String picPath;
+
+    public Order(String orderID, String commodityID, String buyerID, String sellerID, double price, String name, int nums, int isAuction, Date buyDate, String picPath) {
+        this.orderID = orderID;
+        this.commodityID = commodityID;
+        this.buyerID = buyerID;
+        this.sellerID = sellerID;
+        this.price = price;
+        this.name = name;
+        this.nums = nums;
+        this.isAuction = isAuction;
+        this.buyDate = buyDate;
+        this.picPath = picPath;
+    }
+
+    public String getPicPath() {
+        return picPath;
+    }
+
+    public void setPicPath(String picPath) {
+        this.picPath = picPath;
+    }
 
     public String getOrderID() {
         return orderID;

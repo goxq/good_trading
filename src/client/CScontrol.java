@@ -1,10 +1,9 @@
 package client;
-import client.connect.CodecUtil;
+
 import common.entity.*;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -20,19 +19,20 @@ public class CScontrol {
 
     public static void baseConnect() throws IOException {
         //连接服务器
-        socket = new Socket("127.0.0.1",8900);
+        socket = new Socket("127.0.0.1", 8900);
         is = socket.getInputStream();
         dis = new DataInputStream(is);
         os = socket.getOutputStream();
         dos = new DataOutputStream(os);
     }
+
     public static void sendCommand(String command) throws IOException {
         //给服务器说明操作
         dos.writeUTF(command);
     }
 
-    public static boolean loginToServer(String username,String password) throws IOException {
-        try{
+    public static boolean loginToServer(String username, String password) throws IOException {
+        try {
             baseConnect();
 //          dos.writeUTF(username);//进入线程之前先提供userID供服务器加到hashmap里面去。。
 
@@ -42,13 +42,13 @@ public class CScontrol {
 
             //接受返回success或wrong
             String result = dis.readUTF(dis);
-            System.out.println("登录结果是："+result);
-            if(result.equals("success"))
+            System.out.println("登录结果是：" + result);
+            if (result.equals("success"))
                 return true;
             else
                 return false;
 
-        }finally {
+        } finally {
 //            if (dos != null)
 //                dos.close();
 //            if (os != null)
@@ -68,12 +68,13 @@ public class CScontrol {
         dos.writeUTF(password);
 
         String result = dis.readUTF(dis);
-        if(result.equals("isExist"))
+        if (result.equals("isExist"))
             return 0;//用户存在返回0
         else
             return 1;//注册成功返回1
     }
-//    private static void shutStream() throws IOException {
+
+    //    private static void shutStream() throws IOException {
 //        if(dos!=null)
 //            dos.close();
 //        if(os!=null)
@@ -83,13 +84,13 @@ public class CScontrol {
 //        if(is!=null)
 //            is.close();
 //    }
-    public static int getGoodsListLenToServer() throws Exception{
-        try{
+    public static int getGoodsListLenToServer() throws Exception {
+        try {
             //连接服务器获取列列表长度
             sendCommand("GetGoodsListLen");
             int listCount = dis.readInt();//获取到list的长度
             return listCount;
-        }finally {
+        } finally {
 //            shutStream();
         }
     }//好像没什么用。。。
@@ -97,47 +98,48 @@ public class CScontrol {
     /*
     获取商品列表
      */
-    public static List<Commodity> getGoodsListToServer() throws Exception{
-        try{
+    public static List<Commodity> getGoodsListToServer(String userID) throws Exception {
+        try {
             //连接服务器获取列列表<commodity>
             sendCommand("GetGoodsList");
             ObjectInputStream ois = new ObjectInputStream(is);
-            List<Commodity> resultList = (List<Commodity>)ois.readObject();
+            List<Commodity> resultList = (List<Commodity>) ois.readObject();
             //接受图片
             for (Commodity commodity : resultList) {
 
-                    String fileName = dis.readUTF();
+                String fileName = dis.readUTF();
                 System.out.println(1);
-                    long fileLength = dis.readLong();
-                    File directory = new File("D:\\Design\\Client");
-                    File file = new File(directory.getAbsolutePath() + File.separatorChar + fileName);
-                    FileOutputStream fos = new FileOutputStream(file);
-                    //开始接受文件
-                    byte[] bytes = new byte[1024];
-                    int length = 0;
-                    int count =0;
+                long fileLength = dis.readLong();
+                File directory = new File("D:\\Design\\Client\\" + userID);
+                if (!directory.exists()) {
+                    directory.mkdir();
+                }
+                File file = new File(directory.getAbsolutePath() + File.separatorChar + fileName);
+                FileOutputStream fos = new FileOutputStream(file);
+                //开始接受文件
+                byte[] bytes = new byte[1024];
+                int length = 0;
 
-                    while ((length = dis.read(bytes)) != -1) {
-                        fos.write(bytes, 0, length);
-                        fos.flush();
-                        System.out.println(count++);
-                        if (fileLength == file.length()) break;
-                    }
-                    System.out.println("======== 获取商品图片成功 [File Name：" + fileName + "] ========");
-                    commodity.setPicPath(file.getAbsolutePath());
+                while ((length = dis.read(bytes)) != -1) {
+                    fos.write(bytes, 0, length);
+                    fos.flush();
+                    if (fileLength == file.length()) break;
+                }
+                System.out.println("在获取商品列表======== 获取商品图片成功 [File Name：" + fileName + "] ========");
+                commodity.setPicPath(file.getAbsolutePath());
                 dos.writeInt(1);
             }
             return resultList;
-        }finally {
+        } finally {
 //            shutStream();
         }
     }
 
     /*
-    添加商品
+    发布商品
      */
-    public static int addGoodsToServer(String userID,Commodity commodity) throws Exception{
-        try{
+    public static int addGoodsToServer(String userID, Commodity commodity) throws Exception {
+        try {
 
             sendCommand("AddGoods");
             ObjectOutputStream oos = new ObjectOutputStream(os);
@@ -159,21 +161,21 @@ public class CScontrol {
             long progress = 0;
 
 
-            while ((length=fis.read(bytes))!=-1){
-                os.write(bytes,0,length);
-                progress+=length;
-                System.out.print("| " + (100*progress/file.length()) + "% |");
+            while ((length = fis.read(bytes)) != -1) {
+                os.write(bytes, 0, length);
+                progress += length;
+                System.out.print("| " + (100 * progress / file.length()) + "% |");
             }
 
 
             System.out.println("======== 文件传输成功 ========");
 
-            if(dis.readInt()==1){
+            if (dis.readInt() == 1) {
                 System.out.println("here");
                 return 1;
-            }else
+            } else
                 return 0;
-        }finally {
+        } finally {
 
         }
     }
@@ -182,26 +184,20 @@ public class CScontrol {
     商品购买 添加成功返回1，失败返回0
      */
     //Commodity对象里有sellerID，所以只传来buyer就行
-    public static int BuyToServer(Commodity commodity,User buyer,int nums) throws Exception{
-        try{
+    public static int BuyToServer(Order order) throws Exception {
+        try {
 
             sendCommand("Buy");
-            Date date = new Date();
             ObjectOutputStream oos = new ObjectOutputStream(os);
 
             //生成唯一订单号
-            String oderID = CodecUtil.createOrderId();
+            oos.writeObject(order);
 
-            oos.writeObject(commodity);
-            oos.writeObject(buyer);
-            oos.writeObject(date);
-            dos.writeInt(nums);//购买数量
-            dos.writeUTF(oderID);
             int status = dis.readInt();
-            if(status==1){//添加成功
+            if (status == 1) {//添加成功
                 return 1;
-            }else return 0;
-        }finally {
+            } else return 0;
+        } finally {
 //            shutStream();
         }
     }
@@ -211,7 +207,7 @@ public class CScontrol {
     获取已发布商品
      */
     public static List<Commodity> getAlreadyPost(String userID) throws Exception {
-        try{
+        try {
             List<Commodity> commodities;
             sendCommand("getAlreadyPost");
             dos.writeUTF(userID);
@@ -220,43 +216,73 @@ public class CScontrol {
             commodities = (List<Commodity>) ois.readObject();
             //接受图片
             for (Commodity commodity : commodities) {
-                    String fileName = dis.readUTF();
-                    long fileLength = dis.readLong();
-                    File directory = new File("D:\\Design\\Client");
-                    File file = new File(directory.getAbsolutePath() + File.separatorChar + fileName);
-                    FileOutputStream fos = new FileOutputStream(file);
-                    //开始接受文件
-                    byte[] bytes = new byte[1024];
-                    int length = 0;
+                String fileName = dis.readUTF();
+                long fileLength = dis.readLong();
+                File directory = new File("D:\\Design\\Client\\" + userID);
+                if (!directory.exists()) {
+                    directory.mkdir();
+                }
+                File file = new File(directory.getAbsolutePath() + File.separatorChar + fileName);
+                FileOutputStream fos = new FileOutputStream(file);
+                //开始接受文件
+                byte[] bytes = new byte[1024];
+                int length = 0;
 
-                    while ((length = dis.read(bytes)) != -1) {
-                        fos.write(bytes, 0, length);
-                        fos.flush();
-                        if (fileLength == file.length()) break;
-                    }
-                    System.out.println("======== 获取商品图片成功 [File Name：" + fileName + "] ========");
-                    commodity.setPicPath(file.getAbsolutePath());
+                while ((length = dis.read(bytes)) != -1) {
+                    fos.write(bytes, 0, length);
+                    fos.flush();
+                    if (fileLength == file.length()) break;
+                }
+                System.out.println("======== 获取商品图片成功 [File Name：" + fileName + "] ========");
+                commodity.setPicPath(file.getAbsolutePath());
 
                 dos.writeInt(1);
             }
             return commodities;
-        }finally {
+        } finally {
 //            shutStream();
         }
     }
+
     /*
     获取订单列表
      */
-    public static List<Order> getOrderList(String userID) throws Exception {
-        try{
+    public static List<Order> getBuyerOrderList(String userID) throws Exception {
+        try {
 
-            sendCommand("getOrderList");
+            sendCommand("getBuyerOrderList");
             dos.writeUTF(userID);
             List<Order> orderList;
             ObjectInputStream ois = new ObjectInputStream(is);
-            orderList=(List<Order>)ois.readObject();
+            orderList = (List<Order>) ois.readObject();
+            //接受图片
+            for (Order order : orderList) {
+                String fileName = dis.readUTF();
+                long fileLength = dis.readLong();
+                File directory = new File("D:\\Design\\Client\\" + userID);
+                if (!directory.exists()) {
+                    directory.mkdir();
+                }
+                File file = new File(directory.getAbsolutePath() + File.separatorChar + fileName);
+                FileOutputStream fos = new FileOutputStream(file);
+                //开始接受文件
+                byte[] bytes = new byte[1024];
+                int length = 0;
+
+                while ((length = dis.read(bytes)) != -1) {
+                    fos.write(bytes, 0, length);
+                    fos.flush();
+                    if (fileLength == file.length()) break;
+                }
+                System.out.println("Client:在获取订单（已购买表）== 获取商品图片成功 [File Name：" + fileName + "] ========");
+                order.setPicPath(file.getAbsolutePath());
+
+                dos.writeInt(1);
+            }
+
+
             return orderList;
-        }finally {
+        } finally {
 //            shutStream();
         }
     }
@@ -264,42 +290,42 @@ public class CScontrol {
     /*
     获取指定商品的评论列表
      */
-    public static List<Comment> getCommentList(String commodityID) throws Exception{
-        try{
-
+    public static List<Comment> getCommentList(String commodityID) throws Exception {
+        try {
             sendCommand("getCommentList");
             dos.writeUTF(commodityID);
+            dos.flush();
             List<Comment> commentList;
             ObjectInputStream ois = new ObjectInputStream(is);
-            commentList = (List<Comment>)ois.readObject();
+            commentList = (List<Comment>) ois.readObject();
             return commentList;
-        }finally {
+        } finally {
 //            shutStream();
         }
 
     }
+
     /*
     给指定商品添加评论
      */
-    public static void addComment(String commodityID, String userID,String content)throws Exception{
-        try{
+    public static void addComment(Comment comment) throws Exception {
+        try {
 
             sendCommand("addComment");
-            dos.writeUTF(commodityID);
-            dos.writeUTF(userID);
-            dos.writeUTF(content);
-        }finally {
+            ObjectOutputStream oos = new ObjectOutputStream(os);
+            oos.writeObject(comment);
+        } finally {
 //            shutStream();
         }
     }
 
-    public static List<User> getAllUsers() throws Exception{
-            sendCommand("getAllUsers");
-            System.out.println("嘿嘿嘿");
-            ObjectInputStream ois = new ObjectInputStream(is);
-            List<User> userList = (List<User>)ois.readObject();
-            System.out.println(userList.get(5).getPassword());
-            System.out.println("呵呵呵");
-            return userList;
+    public static List<User> getAllUsers() throws Exception {
+        sendCommand("getAllUsers");
+        System.out.println("嘿嘿嘿");
+        ObjectInputStream ois = new ObjectInputStream(is);
+        List<User> userList = (List<User>) ois.readObject();
+        System.out.println(userList.get(5).getPassword());
+        System.out.println("呵呵呵");
+        return userList;
     }
 }

@@ -11,9 +11,9 @@ public class Commodity implements java.io.Serializable {
     private String name;
     private int nums;
     private int isAuction;
-    private Date postDate;//商品发布时间
+    private Date postDate;//鍟嗗搧鍙戝竷鏃堕棿
     private String picPath;
-    private List<Comment> commentList;//评论列表
+    private List<Comment> commentList;//璇勮鍒楄〃
 
     public Commodity() {
     }
@@ -90,7 +90,7 @@ public class Commodity implements java.io.Serializable {
         this.commentList = commentList;
     }
 
-    public Commodity(String id, String userID, double price, String name, int nums, int isAuction, Date postDate) {
+    public Commodity(String id, String userID, double price, String name, int nums, int isAuction, Date postDate, String picPath, List<Comment> commentList) {
         this.id = id;
         this.userID = userID;
         this.price = price;
@@ -98,5 +98,7 @@ public class Commodity implements java.io.Serializable {
         this.nums = nums;
         this.isAuction = isAuction;
         this.postDate = postDate;
+        this.picPath = picPath;
+        this.commentList = commentList;
     }
 }

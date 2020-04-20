@@ -1,7 +1,7 @@
 package client.ui;
 
 import client.CScontrol;
-import client.connect.CodecUtil;
+import client.utils.CodecUtil;
 import client.ui.component.GButton;
 import client.ui.component.GTextField;
 import client.ui.util.FontConfig;
@@ -169,6 +169,7 @@ public class AddGdsPanel extends JPanel implements ActionListener {
                 if(op==JOptionPane.YES_OPTION){
                     commodity.setPicPath("images/default.jpg");
                     System.out.println("你未选择商品图片，将使用默认图片");
+
                     commodity.setId(CodecUtil.createOrderId());
                     commodity.setUserID(user.getUserID());
                     commodity.setName(tf1.getText());
