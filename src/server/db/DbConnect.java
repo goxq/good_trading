@@ -3,9 +3,9 @@ package server.db;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
-public class DbConnectTest {
+public class DbConnect {
     Connection ct = null;
-    public DbConnectTest(){
+    public DbConnect(){
 
     }
     public Connection getConnection(){

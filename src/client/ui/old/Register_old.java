@@ -1,6 +1,7 @@
 package client.ui.old;
 
 import client.CScontrol;
+import client.ui.MainPage;
 import common.entity.User;
 
 
@@ -105,7 +106,7 @@ public class Register_old extends JFrame implements ActionListener {
 
         try{
 
-            int result = CScontrol.RegisterToServer(username,password);
+            int result = CScontrol.registerToServer(username,password);
             if(result==0){
                 JOptionPane.showMessageDialog(this, "用户已存在！");
                 userText.setText("");
@@ -115,7 +116,7 @@ public class Register_old extends JFrame implements ActionListener {
                 userOfRegister = new User(username,password);
                 JOptionPane.showMessageDialog(this, "注册成功！");
                 setVisible(false);
-                new MainPage_old(userOfRegister).setVisible(true);
+                new MainPage(userOfRegister).setVisible(true);
                 dispose();
             }
         }

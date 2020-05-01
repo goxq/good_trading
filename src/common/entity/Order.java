@@ -1,6 +1,7 @@
 package common.entity;
 
 import java.util.Date;
+import java.util.List;
 
 public class Order implements java.io.Serializable{
     private static final long serialVersionUID = -2508573542830625357L;
@@ -14,6 +15,41 @@ public class Order implements java.io.Serializable{
     private int isAuction;
     private Date buyDate;
     private String picPath;
+    private List<Comment> commentList;
+    private double auctionPrice;
+
+    public double getAuctionPrice() {
+        return auctionPrice;
+    }
+
+    public void setAuctionPrice(double auctionPrice) {
+        this.auctionPrice = auctionPrice;
+    }
+
+    public Order() {
+    }
+
+    public Order(String orderID, String commodityID, String buyerID, String sellerID, double price, String name, int nums, int isAuction, Date buyDate, String picPath, List<Comment> commentList) {
+        this.orderID = orderID;
+        this.commodityID = commodityID;
+        this.buyerID = buyerID;
+        this.sellerID = sellerID;
+        this.price = price;
+        this.name = name;
+        this.nums = nums;
+        this.isAuction = isAuction;
+        this.buyDate = buyDate;
+        this.picPath = picPath;
+        this.commentList = commentList;
+    }
+
+    public List<Comment> getCommentList() {
+        return commentList;
+    }
+
+    public void setCommentList(List<Comment> commentList) {
+        this.commentList = commentList;
+    }
 
     public Order(String orderID, String commodityID, String buyerID, String sellerID, double price, String name, int nums, int isAuction, Date buyDate, String picPath) {
         this.orderID = orderID;

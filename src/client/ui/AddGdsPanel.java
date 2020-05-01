@@ -28,6 +28,8 @@ public class AddGdsPanel extends JPanel implements ActionListener {
     GTextField tf2;
     GTextField tf3;
     JLabel tip;
+    JRadioButton rb1;
+    JRadioButton rb2;
     public AddGdsPanel(User user){
         this.user = user;
         JPanel jptf1= new JPanel();
@@ -91,8 +93,8 @@ public class AddGdsPanel extends JPanel implements ActionListener {
         jl.setForeground(MyColor.WHITE);
         jl.setFont(FontConfig.font3);
         jl.setOpaque(false);
-        JRadioButton rb1 = new JRadioButton("不拍卖");
-        JRadioButton rb2 = new JRadioButton("拍卖");
+        rb1 = new JRadioButton("不拍卖");
+        rb2 = new JRadioButton("拍卖");
         rb1.setFont(FontConfig.font2);
         rb2.setFont(FontConfig.font2);
         rb1.setForeground(MyColor.WHITE);
@@ -100,6 +102,7 @@ public class AddGdsPanel extends JPanel implements ActionListener {
         ButtonGroup bGroup = new ButtonGroup();
         bGroup.add(rb1);
         bGroup.add(rb2);
+        rb1.setSelected(true);
         rb1.setOpaque(false);
         rb2.setOpaque(false);
 
@@ -145,7 +148,7 @@ public class AddGdsPanel extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if(e.getActionCommand().equals("bt_add_img")){
             JFileChooser chooser = new JFileChooser();
-            FileNameExtensionFilter filter = new FileNameExtensionFilter("jpg","png");
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("图像文件(jpg/gif/png)","png","jpg","jpeg","gif");
             chooser.setFileFilter(filter);
             int ret = chooser.showOpenDialog(this);
             if(ret==JFileChooser.APPROVE_OPTION){
@@ -179,6 +182,15 @@ public class AddGdsPanel extends JPanel implements ActionListener {
                     System.out.println("在添加商品："+new Date());
                     //isAuction属性已经在RadioBox的点击事件里设置
                     //comment属性还没设置
+                    if(rb1.isSelected()){
+                        commodity.setIsAuction(0);
+                    }else
+                        commodity.setIsAuction(1);
+                    if(commodity.getIsAuction()==1&&(commodity.getNums()>1))
+                    {
+                        JOptionPane.showMessageDialog(this,"拍卖商品只能只能发布数量只能为1哦~");
+                        return;
+                    }
                     add(commodity);
                     commodity.setPicPath(null);//将图片路径设置为空
                     tf1.setText("");
@@ -197,8 +209,16 @@ public class AddGdsPanel extends JPanel implements ActionListener {
                 commodity.setNums(Integer.parseInt(tf2.getText()));
                 commodity.setPostDate(new Date());
                 System.out.println("在添加商品："+new Date());
-                //isAuction属性已经在RadioBox的点击事件里设置
-                //comment属性还没设置
+                if(rb1.isSelected()){
+                    commodity.setIsAuction(0);
+                }else
+                    commodity.setIsAuction(1);
+
+                if(commodity.getIsAuction()==1&&(commodity.getNums()>1))
+                {
+                    JOptionPane.showMessageDialog(this,"拍卖商品只能只能发布数量只能为1哦~");
+                    return;
+                }
                 add(commodity);
                 commodity.setPicPath(null);//将图片路径设置为空
                 tf1.setText("请输入商品名称及描述");
@@ -209,11 +229,6 @@ public class AddGdsPanel extends JPanel implements ActionListener {
                 tf3.setForeground(MyColor.WHITE);
                 tip.setText("");
             }
-        }else if(e.getActionCommand().equals("rb1")){
-            commodity.setIsAuction(0);
-        }
-        else if(e.getActionCommand().equals("rb2")){
-            commodity.setIsAuction(1);
         }
     }
     public void add(Commodity commodity){

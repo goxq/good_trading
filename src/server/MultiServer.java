@@ -22,12 +22,12 @@ public class MultiServer {
                 InetAddress inetAddress = socket.getInetAddress();
                 ServeOne s = new ServeOne(socket,inetAddress.getHostAddress());
                 Thread thread = new Thread(s);
-
-
+                
                 System.out.println("请求操作的客户端已有"+count+"个");
                 System.out.println("客户端的IP地址是："+inetAddress.getHostAddress()+"  name是："+inetAddress.getHostName());
 
                 thread.start();
+                System.out.println(thread.getThreadGroup());
             }
         } catch (Exception e) {
             System.out.println("异常");

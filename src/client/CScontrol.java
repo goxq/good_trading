@@ -1,8 +1,10 @@
 package client;
 
+import com.mysql.cj.xdevapi.JsonString;
 import common.entity.*;
 
 import java.io.*;
+import java.net.CookiePolicy;
 import java.net.Socket;
 import java.util.Date;
 import java.util.List;
@@ -34,8 +36,6 @@ public class CScontrol {
     public static boolean loginToServer(String username, String password) throws IOException {
         try {
             baseConnect();
-//          dos.writeUTF(username);//进入线程之前先提供userID供服务器加到hashmap里面去。。
-
             sendCommand("Login");
             dos.writeUTF(username);
             dos.writeUTF(password);
@@ -61,12 +61,12 @@ public class CScontrol {
 
     }
 
-    public static int RegisterToServer(String username, String password) throws IOException {
+    public static int registerToServer(String username, String password) throws IOException {
         baseConnect();
         sendCommand("Register");
-        dos.writeUTF(username);
-        dos.writeUTF(password);
-
+        User user = new User(username,password);
+        ObjectOutputStream oos = new ObjectOutputStream(os);
+        oos.writeObject(user);
         String result = dis.readUTF(dis);
         if (result.equals("isExist"))
             return 0;//用户存在返回0
@@ -108,7 +108,6 @@ public class CScontrol {
             for (Commodity commodity : resultList) {
 
                 String fileName = dis.readUTF();
-                System.out.println(1);
                 long fileLength = dis.readLong();
                 File directory = new File("D:\\Design\\Client\\" + userID);
                 if (!directory.exists()) {
@@ -171,7 +170,6 @@ public class CScontrol {
             System.out.println("======== 文件传输成功 ========");
 
             if (dis.readInt() == 1) {
-                System.out.println("here");
                 return 1;
             } else
                 return 0;
@@ -276,11 +274,8 @@ public class CScontrol {
                 }
                 System.out.println("Client:在获取订单（已购买表）== 获取商品图片成功 [File Name：" + fileName + "] ========");
                 order.setPicPath(file.getAbsolutePath());
-
                 dos.writeInt(1);
             }
-
-
             return orderList;
         } finally {
 //            shutStream();
@@ -321,11 +316,188 @@ public class CScontrol {
 
     public static List<User> getAllUsers() throws Exception {
         sendCommand("getAllUsers");
-        System.out.println("嘿嘿嘿");
         ObjectInputStream ois = new ObjectInputStream(is);
         List<User> userList = (List<User>) ois.readObject();
-        System.out.println(userList.get(5).getPassword());
-        System.out.println("呵呵呵");
         return userList;
+    }
+
+    /*
+    商品搜索
+     */
+    public static List<Commodity> getSpecificCommodity(String name,String userID) throws Exception{
+        sendCommand("getSpecificCommodity");
+        dos.writeUTF(name);
+        ObjectInputStream ois = new ObjectInputStream(is);
+        List<Commodity> commodityList = (List<Commodity>) ois.readObject();
+        for (Commodity commodity : commodityList) {
+
+            String fileName = dis.readUTF();
+            long fileLength = dis.readLong();
+            File directory = new File("D:\\Design\\Client\\" + userID);
+            if (!directory.exists()) {
+                directory.mkdir();
+            }
+            File file = new File(directory.getAbsolutePath() + File.separatorChar + fileName);
+            FileOutputStream fos = new FileOutputStream(file);
+            //开始接受文件
+            byte[] bytes = new byte[1024];
+            int length = 0;
+
+            while ((length = dis.read(bytes)) != -1) {
+                fos.write(bytes, 0, length);
+                fos.flush();
+                if (fileLength == file.length()) break;
+            }
+            System.out.println("在获取商品列表======== 获取商品图片成功 [File Name：" + fileName + "] ========");
+            commodity.setPicPath(file.getAbsolutePath());
+            dos.writeInt(1);
+        }
+        return commodityList;
+    }
+
+    /*
+    每个被别人已购买的商品的所拥有的订单列表
+     */
+    public static List<Order> getSellerOrderList(Commodity commodity,String userID) throws Exception{
+        sendCommand("getSellerOrderList");
+        ObjectOutputStream oos = new ObjectOutputStream(os);
+        oos.writeObject(commodity);
+        ObjectInputStream ois = new ObjectInputStream(is);
+        List<Order> orders = (List<Order>)ois.readObject();
+        for (Order order : orders) {
+            String fileName = dis.readUTF();
+            long fileLength = dis.readLong();
+            File directory = new File("D:\\Design\\Client\\" + userID);
+            if (!directory.exists()) {
+                directory.mkdir();
+            }
+            File file = new File(directory.getAbsolutePath() + File.separatorChar + fileName);
+            FileOutputStream fos = new FileOutputStream(file);
+            //开始接受文件
+            byte[] bytes = new byte[1024];
+            int length = 0;
+
+            while ((length = dis.read(bytes)) != -1) {
+                fos.write(bytes, 0, length);
+                fos.flush();
+                if (fileLength == file.length()) break;
+            }
+            System.out.println("在获取卖家已卖出订单列表======== 获取商品图片成功 [File Name：" + fileName + "] ========");
+            order.setPicPath(file.getAbsolutePath());
+            dos.writeInt(1);
+        }
+        return orders;
+    }
+    /*
+    删除还没人买的已发布商品
+     */
+    public static void deleteAlreadyGood(String commodityID) throws IOException {
+        sendCommand("deleteAlreadyGood");
+        dos.writeUTF(commodityID);
+    }
+    public static List<Auction> getBuyerAuctionList(String commodityID) throws Exception{
+        sendCommand("getAuctionList");
+        dos.writeUTF(commodityID);
+        ObjectInputStream ois = new ObjectInputStream(is);
+        List<Auction> auctionList = (List<Auction>)ois.readObject();
+        for (Auction auction : auctionList) {
+            String fileName = dis.readUTF();
+            long fileLength = dis.readLong();
+            File directory = new File("D:\\Design\\Client\\" + auction.getBuyer());
+            if (!directory.exists()) {
+                directory.mkdir();
+            }
+            File file = new File(directory.getAbsolutePath() + File.separatorChar + fileName);
+            FileOutputStream fos = new FileOutputStream(file);
+            //开始接受文件
+            byte[] bytes = new byte[1024];
+            int length = 0;
+
+            while ((length = dis.read(bytes)) != -1) {
+                fos.write(bytes, 0, length);
+                fos.flush();
+                if (fileLength == file.length()) break;
+            }
+            System.out.println("在获取买家拍卖列表（指定商品）======== 获取商品图片成功 [File Name：" + fileName + "] ========");
+            auction.setPicPath(file.getAbsolutePath());
+            dos.writeInt(1);
+        }
+        return auctionList;
+    }
+    public static List<Auction> getSellerAuctionList(String commodityID) throws Exception{
+        sendCommand("getAuctionList");
+        dos.writeUTF(commodityID);
+        ObjectInputStream ois = new ObjectInputStream(is);
+        List<Auction> auctionList = (List<Auction>)ois.readObject();
+        for (Auction auction : auctionList) {
+            String fileName = dis.readUTF();
+            long fileLength = dis.readLong();
+            File directory = new File("D:\\Design\\Client\\" + auction.getSeller());
+            if (!directory.exists()) {
+                directory.mkdir();
+            }
+            File file = new File(directory.getAbsolutePath() + File.separatorChar + fileName);
+            FileOutputStream fos = new FileOutputStream(file);
+            //开始接受文件
+            byte[] bytes = new byte[1024];
+            int length = 0;
+
+            while ((length = dis.read(bytes)) != -1) {
+                fos.write(bytes, 0, length);
+                fos.flush();
+                if (fileLength == file.length()) break;
+            }
+            System.out.println("在获取卖家拍卖列表======== 获取商品图片成功 [File Name：" + fileName + "] ========");
+            auction.setPicPath(file.getAbsolutePath());
+            dos.writeInt(1);
+        }
+        return auctionList;
+    }
+    public static int addToAuction(Auction auction) throws IOException {
+        sendCommand("addToAuction");
+        ObjectOutputStream oos = new ObjectOutputStream(os);
+        oos.writeObject(auction);
+        int result = dis.readInt();
+        return result;
+    }
+    public static List<Auction> getAuctionListWithSameBuyer(String buyer) throws IOException, ClassNotFoundException {
+        sendCommand("getAuctionListWithSameBuyer");
+        dos.writeUTF(buyer);
+        ObjectInputStream ois = new ObjectInputStream(is);
+        List<Auction> auctionList = (List<Auction>)ois.readObject();
+        for (Auction auction : auctionList) {
+            String fileName = dis.readUTF();
+            long fileLength = dis.readLong();
+            File directory = new File("D:\\Design\\Client\\" + auction.getBuyer());
+            if (!directory.exists()) {
+                directory.mkdir();
+            }
+            File file = new File(directory.getAbsolutePath() + File.separatorChar + fileName);
+            FileOutputStream fos = new FileOutputStream(file);
+            //开始接受文件
+            byte[] bytes = new byte[1024];
+            int length = 0;
+
+            while ((length = dis.read(bytes)) != -1) {
+                fos.write(bytes, 0, length);
+                fos.flush();
+                if (fileLength == file.length()) break;
+            }
+            System.out.println("在获取买家拍卖列表(指定用户)======== 获取商品图片成功 [File Name：" + fileName + "] ========");
+            auction.setPicPath(file.getAbsolutePath());
+            dos.writeInt(1);
+        }
+        return auctionList;
+    }
+    public static int getNumsWithComIdInAuc(String commodityID) throws Exception{
+        sendCommand("getNumsWithComIdInAuc");
+        dos.writeUTF(commodityID);
+        return dis.readInt();
+    }
+    public static int auctionSell(Order order) throws Exception{
+        sendCommand("auctionSell");
+        ObjectOutputStream oos = new ObjectOutputStream(os);
+        oos.writeObject(order);
+        return dis.readInt();
     }
 }

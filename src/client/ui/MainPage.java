@@ -1,8 +1,10 @@
 package client.ui;
 
 import client.CScontrol;
+import client.ui.auction.BuyAucOutpriceListPanel;
 import client.ui.component.GBackGroundPanel;
 import client.ui.component.GButtonItem;
+import client.ui.component.SearchField;
 import client.ui.util.MyColor;
 import common.entity.User;
 import javax.swing.*;
@@ -13,15 +15,17 @@ import java.awt.event.MouseEvent;
 public class MainPage extends JFrame {
     public static int width = 1140;
     public static int height = 650;
+    String currentPanel = "jp_gds";
     GBackGroundPanel jp_main;
     JPanel  jp_left, jp_al_buy;
     JPanel right_panel;
-    GButtonItem bt1, bt2, bt3,bt4;
+    GButtonItem bt1, bt2, bt3,bt4,bt5;
     CardLayout cl;
     String clicked;
     GdsPanel gdsPanel;
     AlreadyPostPanel alreadyPostPanel;
     AlreadyBuyPanel alreadyBuyPanel;
+    BuyAucOutpriceListPanel buyAucOutpriceListPanel;
 
     private User user;
 
@@ -39,35 +43,61 @@ public class MainPage extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
+
+
+
+        //1.商品列表
+        gdsPanel = new GdsPanel(this);
+        JScrollPane jsp1 = new JScrollPane(gdsPanel);
+        jsp1.getVerticalScrollBar().setUnitIncrement(20);
+        //2.已购买商品列表
+        alreadyBuyPanel = new AlreadyBuyPanel(user,this);
+        JScrollPane jsp3_alreadyBuy = new JScrollPane(alreadyBuyPanel);
+        jsp3_alreadyBuy.getVerticalScrollBar().setUnitIncrement(20);
+        //3.添加商品panel
+        AddGdsPanel addGdsPanel = new AddGdsPanel(user);
+        addGdsPanel.setOpaque(false);
+
+        //4.此用户已发布商品panel
+        alreadyPostPanel = new AlreadyPostPanel(user,this);
+        JScrollPane jsp2_alreadyPost = new JScrollPane(alreadyPostPanel);
+        jsp2_alreadyPost.getVerticalScrollBar().setUnitIncrement(20);
+
+        SearchField searchField = new SearchField(gdsPanel,this);
         bt1 = new GButtonItem("全部商品", null);
+        bt1.setBackground(MyColor.enter_background);
+        bt1.setForeground(MyColor.enter_font);
         bt2 = new GButtonItem("已购买", null);
         bt3 = new GButtonItem("发布商品", null);
         bt4 = new GButtonItem("我已发布",null);
-
+        bt5 = new GButtonItem("我已出价(拍卖)",null);
         bt1.setFont(new Font("微软雅黑", Font.PLAIN, 20));
         bt2.setFont(new Font("微软雅黑", Font.PLAIN, 20));
         bt3.setFont(new Font("微软雅黑", Font.PLAIN, 20));
         bt4.setFont(new Font("微软雅黑", Font.PLAIN, 20));
-
+        bt5.setFont(new Font("微软雅黑", Font.PLAIN, 20));
         bt1.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
                 clicked = e.getSource().toString();
-                bt1.setBackground(MyColor.exit_background);
-                bt1.setForeground(MyColor.exit_font);
+                bt1.setBackground(MyColor.enter_background);
+                bt1.setForeground(MyColor.enter_font);
                 bt2.setBackground(MyColor.exit_background);
                 bt2.setForeground(MyColor.exit_font);
                 bt3.setBackground(MyColor.exit_background);
                 bt3.setForeground(MyColor.exit_font);
-                ((GButtonItem) e.getSource()).setForeground(MyColor.enter_font);
-                ((GButtonItem) e.getSource()).setBackground(MyColor.enter_background);
+                bt4.setBackground(MyColor.exit_background);
+                bt4.setForeground(MyColor.exit_font);
+                bt5.setBackground(MyColor.exit_background);
+                bt5.setForeground(MyColor.exit_font);
                 try {
-                    gdsPanel.upDate();//更新商品列表界面
+                    gdsPanel.upDate(CScontrol.getGoodsListToServer(getUserId()));//更新商品列表界面
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
-                cl.show(right_panel, "jp_gds");
+                showPanel( "jp_gds");
             }
 
             @Override
@@ -84,20 +114,22 @@ public class MainPage extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
                 clicked = e.getSource().toString();
+                bt2.setBackground(MyColor.enter_background);
+                bt2.setForeground(MyColor.enter_font);
                 bt1.setBackground(MyColor.exit_background);
                 bt1.setForeground(MyColor.exit_font);
-                bt2.setBackground(MyColor.exit_background);
-                bt2.setForeground(MyColor.exit_font);
                 bt3.setBackground(MyColor.exit_background);
                 bt3.setForeground(MyColor.exit_font);
-                ((GButtonItem) e.getSource()).setForeground(MyColor.enter_font);
-                ((GButtonItem) e.getSource()).setBackground(MyColor.enter_background);
-                cl.show(right_panel, "jp_al_buy");
+                bt4.setBackground(MyColor.exit_background);
+                bt4.setForeground(MyColor.exit_font);
+                bt5.setBackground(MyColor.exit_background);
+                bt5.setForeground(MyColor.exit_font);
                 try {//更新界面
                     alreadyBuyPanel.upDate();
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
+                showPanel( "jp_al_buy");
             }
 
             @Override
@@ -114,15 +146,17 @@ public class MainPage extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
                 clicked = e.getSource().toString();
+                bt3.setBackground(MyColor.enter_background);
+                bt3.setForeground(MyColor.enter_font);
                 bt1.setBackground(MyColor.exit_background);
                 bt1.setForeground(MyColor.exit_font);
                 bt2.setBackground(MyColor.exit_background);
                 bt2.setForeground(MyColor.exit_font);
-                bt3.setBackground(MyColor.exit_background);
-                bt3.setForeground(MyColor.exit_font);
-                ((GButtonItem) e.getSource()).setForeground(MyColor.enter_font);
-                ((GButtonItem) e.getSource()).setBackground(MyColor.enter_background);
-                cl.show(right_panel, "addGdsPanel");
+                bt4.setBackground(MyColor.exit_background);
+                bt4.setForeground(MyColor.exit_font);
+                bt5.setBackground(MyColor.exit_background);
+                bt5.setForeground(MyColor.exit_font);
+                showPanel( "addGdsPanel");
             }
 
             @Override
@@ -139,20 +173,22 @@ public class MainPage extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
                 clicked = e.getSource().toString();
+                bt4.setBackground(MyColor.enter_background);
+                bt4.setForeground(MyColor.enter_font);
                 bt1.setBackground(MyColor.exit_background);
                 bt1.setForeground(MyColor.exit_font);
                 bt2.setBackground(MyColor.exit_background);
                 bt2.setForeground(MyColor.exit_font);
                 bt3.setBackground(MyColor.exit_background);
                 bt3.setForeground(MyColor.exit_font);
-                ((GButtonItem) e.getSource()).setForeground(MyColor.enter_font);
-                ((GButtonItem) e.getSource()).setBackground(MyColor.enter_background);
-                cl.show(right_panel, "alreadyPostPanel");
+                bt5.setBackground(MyColor.exit_background);
+                bt5.setForeground(MyColor.exit_font);
                 try {
                     alreadyPostPanel.upDate();
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
+                showPanel( "alreadyPostPanel");
             }
             @Override
             public void mouseExited(MouseEvent e) {
@@ -163,32 +199,53 @@ public class MainPage extends JFrame {
                 }
             }
         });
+        bt5.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                clicked = e.getSource().toString();
+                bt5.setBackground(MyColor.enter_background);
+                bt5.setForeground(MyColor.enter_font);
+                bt1.setBackground(MyColor.exit_background);
+                bt1.setForeground(MyColor.exit_font);
+                bt2.setBackground(MyColor.exit_background);
+                bt2.setForeground(MyColor.exit_font);
+                bt3.setBackground(MyColor.exit_background);
+                bt3.setForeground(MyColor.exit_font);
+                bt4.setBackground(MyColor.exit_background);
+                bt4.setForeground(MyColor.exit_font);
+                try{
+                    if(buyAucOutpriceListPanel == null){
+                        buyAucOutpriceListPanel = new BuyAucOutpriceListPanel(MainPage.this);
+                        addPanel("buyAucOutpriceListPanel",buyAucOutpriceListPanel);
+                        showPanel("buyAucOutpriceListPanel");
+                    }else {
+                        buyAucOutpriceListPanel.upDate();
+                        showPanel("buyAucOutpriceListPanel");
+                    }
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
 
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                super.mouseExited(e);
+                if (clicked == null || !clicked.equals(e.getSource().toString())) {
+                    ((GButtonItem) e.getSource()).setBackground(MyColor.exit_background);
+                    ((GButtonItem) e.getSource()).setForeground(MyColor.exit_font);
+                }
+            }
+        });
         jp_left = new JPanel(new GridLayout(10, 1));
         jp_left.setBackground(MyColor.exit_background);
         jp_left.setPreferredSize(new Dimension(width / 5, height));
+        jp_left.add(searchField);
         jp_left.add(bt1);
+        jp_left.add(bt5);
         jp_left.add(bt2);
         jp_left.add(bt3);
         jp_left.add(bt4);
-
-
-
-        //1.商品列表
-        gdsPanel = new GdsPanel(this);
-        JScrollPane jsp1 = new JScrollPane(gdsPanel);
-
-        //2.已购买商品列表
-        alreadyBuyPanel = new AlreadyBuyPanel(user,this);
-        JScrollPane jsp3_alreadyBuy = new JScrollPane(alreadyBuyPanel);
-
-        //3.添加商品panel
-        AddGdsPanel addGdsPanel = new AddGdsPanel(user);
-        addGdsPanel.setOpaque(false);
-
-        //4.此用户已发布商品panel
-        alreadyPostPanel = new AlreadyPostPanel(user);
-        JScrollPane jsp2_alreadyPost = new JScrollPane(alreadyPostPanel);
 
         cl = new CardLayout();
         right_panel = new JPanel(cl);
@@ -213,7 +270,8 @@ public class MainPage extends JFrame {
     }
     public void showPanel(String name){
         this.cl.show(right_panel,name);
-        repaint();
+        currentPanel = name;
+        validate();
     }
     public void deletePanel(JPanel panel){
         this.right_panel.remove(panel);
@@ -222,5 +280,6 @@ public class MainPage extends JFrame {
     public String getUserId(){
         return user.getUserID();
     }
+    public String getCurrentPanel(){return currentPanel;};
 
 }

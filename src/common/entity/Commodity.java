@@ -14,6 +14,15 @@ public class Commodity implements java.io.Serializable {
     private Date postDate;//商品发布时间
     private String picPath;
     private List<Comment> commentList;//评论列表
+    private boolean isSold;//数据库没有这个，只是为了标识已发布里的商品有没有卖出
+
+    public boolean getIsSold() {
+        return isSold;
+    }
+
+    public void setIsSold(boolean isSold) {
+        this.isSold = isSold;
+    }
 
     public Commodity() {
     }

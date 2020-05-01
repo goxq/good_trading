@@ -28,28 +28,14 @@ public class SingleGoodPanel extends JPanel implements ActionListener {
         this.mainPage = mainPage;
         this.setLayout(new BorderLayout());
         JPanel topPanel = new JPanel();
-        JButton bt_back = new JButton("返回");
+        GButton bt_back = new GButton("返回");
         bt_back.addActionListener(e -> {
             this.mainPage.showPanel("jp_gds");
             this.mainPage.deletePanel(this);
         });
         topPanel.add(bt_back);
-        topPanel.setBackground(MyColor.GREEN_A200);
+        topPanel.setBackground(MyColor.BLUE_300);
 
-        JPanel leftPanel = new JPanel();
-        JButton bt1 = new JButton("嘿嘿");
-        leftPanel.add(bt1);
-        leftPanel.setBackground(MyColor.RED_200);
-
-        JPanel rightPanel = new JPanel();
-        JButton bt2 = new JButton("哈哈");
-        rightPanel.add(bt2);
-        rightPanel.setBackground(MyColor.PINK_200);
-
-        JPanel bottomPanel = new JPanel();
-        JButton bt3 = new JButton("唉");
-        bottomPanel.add(bt3);
-        bottomPanel.setBackground(MyColor.PURPLE_A700);
 
         GridBagLayout gbl = new GridBagLayout();
         JPanel centerPanel = new JPanel();
@@ -58,7 +44,7 @@ public class SingleGoodPanel extends JPanel implements ActionListener {
         JPanel goodInfoPanel = new JPanel(new BorderLayout());
         JPanel imgPanel = new JPanel();
         //imgPanel.setPreferredSize(new Dimension(350,350));
-        imgPanel.setBackground(MyColor.RED_200);
+        imgPanel.setBackground(MyColor.BLUE_200);
         JLabel imgLabel = new JLabel();
         ImageIcon img = new ImageIcon(commodity.getPicPath());
         img.setImage(img.getImage().getScaledInstance(350, 350, Image.SCALE_DEFAULT));
@@ -66,7 +52,7 @@ public class SingleGoodPanel extends JPanel implements ActionListener {
         imgPanel.add(imgLabel);
 
         JPanel textPanel = new JPanel(new GridLayout(5, 1, 0, 5));
-        textPanel.setBackground(MyColor.YELLOW_500);
+        textPanel.setBackground(MyColor.BLUE_200);
         textPanel.setPreferredSize(new Dimension(519, 300));
         JLabel nameLabel = new JLabel(commodity.getName(), JLabel.CENTER);
         nameLabel.setFont(new Font("微软雅黑", Font.BOLD, 40));
@@ -96,7 +82,7 @@ public class SingleGoodPanel extends JPanel implements ActionListener {
         String dateString = formatter.format(commodity.getPostDate());
         sellerAndTimePanel.setText("卖家:" + commodity.getUserID() + "  发布时间:" + dateString);
         sellerAndTimePanel.setFont(new Font("微软雅黑", Font.PLAIN, 13));
-        sellerAndTimePanel.setForeground(MyColor.exit_font);
+        sellerAndTimePanel.setForeground(MyColor.WHITE);
 
 
         textPanel.add(nameLabel);
@@ -110,36 +96,52 @@ public class SingleGoodPanel extends JPanel implements ActionListener {
         centerPanel.add(goodInfoPanel, new GBC(0, 0, 1, 2)
                 .setFill(GBC.BOTH).setWeight(50, 100));
 
-        JLabel tipLabel = new JLabel("商品评论",JLabel.CENTER);
-        tipLabel.setFont(new Font("方正喵呜体", Font.BOLD,25));
-        tipLabel.setPreferredSize(new Dimension(0,100));
+        JLabel tipLabel = new JLabel("商品评论", JLabel.CENTER);
+        tipLabel.setFont(new Font("方正喵呜体", Font.BOLD, 25));
+        tipLabel.setPreferredSize(new Dimension(0, 100));
         centerPanel.add(tipLabel, new GBC(0, 2, 1, 1)
                 .setFill(GBC.BOTH).setWeight(50, 100));
 
         //评论面板
         List<Comment> commentList = commodity.getCommentList();
-        JPanel commentPanel = new JPanel(new GridLayout(commentList.size(), 1, 0, 0));
-        for (int i = 0; i < commentList.size(); i++) {
-            Comment comment = commentList.get(i);
-            JPanel eachCommentPanel = new JPanel(new GridLayout(2,1,0,0));
-            JTextArea contentText = new JTextArea(comment.getContent());
-            contentText.setLineWrap(true);
-            contentText.setEnabled(false);
-            contentText.setFont(FontConfig.font3);
+        int size = commentList.size();
+        JPanel commentPanel = null;
+        if (size != 0) {
+            commentPanel = new JPanel(new GridLayout(size, 1, 0, 20));
 
-            String postDate = formatter.format(comment.getDate());
-            JLabel posterAndDate = new JLabel("发布者:"+comment.getUserID()+"      发布时间:"+postDate,JLabel.RIGHT);
-            posterAndDate.setFont(new Font("微软雅黑", Font.PLAIN,15));
-            posterAndDate.setForeground(MyColor.GRAY_400);
+            for (int i = 0; i < commentList.size(); i++) {
+                Comment comment = commentList.get(i);
+                JPanel eachCommentPanel = new JPanel(new BorderLayout());
+                eachCommentPanel.setBackground(MyColor.YELLOW_50);
+                JTextArea contentText = new JTextArea(comment.getContent());
+                contentText.setLineWrap(true);
+                contentText.setEnabled(false);
+                contentText.setForeground(MyColor.BLACK);
+                contentText.setFont(FontConfig.font3);
+                contentText.setBackground(MyColor.YELLOW_50);
 
-            eachCommentPanel.add(contentText);
-            eachCommentPanel.add(posterAndDate);
-            commentPanel.add(eachCommentPanel);
+                String postDate = formatter.format(comment.getDate());
+                JLabel posterAndDate = new JLabel("发布者:" + comment.getUserID() + "      发布时间:" + postDate, JLabel.RIGHT);
+                posterAndDate.setFont(new Font("微软雅黑", Font.PLAIN, 15));
+                posterAndDate.setBackground(MyColor.YELLOW_50);
+
+                eachCommentPanel.add(contentText, BorderLayout.CENTER);
+                eachCommentPanel.add(posterAndDate, BorderLayout.SOUTH);
+                commentPanel.add(eachCommentPanel);
+            }
+        } else {
+            JLabel txt = new JLabel("该商品暂时还没有人评论哦！", JLabel.CENTER);
+            txt.setBackground(MyColor.YELLOW_50);
+            txt.setFont(new Font("方正喵呜体", Font.BOLD, 15));
+            commentPanel = new JPanel();
+            commentPanel.setBackground(MyColor.YELLOW_50);
+            commentPanel.add(txt);
         }
-        centerPanel.add(commentPanel, new GBC(0, 3, 1, 1)
-                .setFill(GBC.BOTH).setWeight(50, 100));
 
-        centerPanel.setBackground(MyColor.BROWN_400);
+        centerPanel.add(commentPanel, new GBC(0, 3, 1, 1)
+                .setFill(GBC.BOTH).setWeight(50, 100).setAnchor(GridBagConstraints.CENTER));
+
+        centerPanel.setBackground(MyColor.YELLOW_200);
         JScrollPane jsp = new JScrollPane(centerPanel);
 
 
@@ -154,27 +156,42 @@ public class SingleGoodPanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("buyButton")) {
-            if (commodity.getUserID().equals(mainPage.getUserId())) {
-                JOptionPane.showMessageDialog(this, "不能购买自己发布的商品！:", "提示", JOptionPane.WARNING_MESSAGE);
-            }else {
-                String nums = JOptionPane.showInputDialog(this, "请输入购买数量:", "购买确认", JOptionPane.PLAIN_MESSAGE);
-                if (Integer.parseInt(nums) <= commodity.getNums()) {
-                    if (commodity.getIsAuction() == 0) {//下面是非拍卖的购买操作
-                        //订单类里面的图 在server端设置为服务器的路径
-                        Order order = new Order(CodecUtil.createOrderId(), commodity.getId(), mainPage.getUserId(), commodity.getUserID(),
-                                commodity.getPrice(), commodity.getName(), Integer.parseInt(nums), 0, new Date());
+            if (commodity.getIsAuction() == 0) {
+                if (commodity.getUserID().equals(mainPage.getUserId())) {
+                    JOptionPane.showMessageDialog(this, "不能购买自己发布的商品！", "提示", JOptionPane.WARNING_MESSAGE);
+                } else {
+                    Object numsObj = JOptionPane.showInputDialog(this, "请输入购买数量:", "购买确认", JOptionPane.OK_CANCEL_OPTION);
+                    if (numsObj == null) {
+                    } else {
+                        String nums = (String) numsObj;
+                        int numsInteger = 0;
                         try {
-                            int a = CScontrol.BuyToServer(order);
-                            if (a == 1) {
-                                JOptionPane.showMessageDialog(this, "购买成功");
-                            } else {
-                                JOptionPane.showMessageDialog(this, "购买失败");
-                            }
-                        } catch (Exception exception) {
-                            exception.printStackTrace();
+                            numsInteger = Integer.parseInt(nums);
+                            if (numsInteger <= commodity.getNums() && numsInteger > 0) {
+                                //下面是非拍卖的购买操作
+                                //订单类里面的图 在server端设置为服务器的路径
+                                Order order = new Order(CodecUtil.createOrderId(), commodity.getId(), mainPage.getUserId(), commodity.getUserID(),
+                                        commodity.getPrice(), commodity.getName(), Integer.parseInt(nums), 0, new Date());
+                                try {
+                                    int a = CScontrol.BuyToServer(order);
+                                    if (a == 1) {
+                                        JOptionPane.showMessageDialog(this, "购买成功");
+                                        commodity.setNums(commodity.getNums() - numsInteger);
+                                    } else {
+                                        JOptionPane.showMessageDialog(this, "购买失败");
+                                    }
+                                } catch (Exception exception) {
+                                    exception.printStackTrace();
+                                }
+                            } else
+                                JOptionPane.showMessageDialog(this, "购买数量有误，请重新购买", "提示", JOptionPane.WARNING_MESSAGE);
+                        } catch (NumberFormatException nfe) {
+                            JOptionPane.showMessageDialog(this, "购买数量有误，请重新购买", "提示", JOptionPane.WARNING_MESSAGE);
                         }
                     }
                 }
+            }else if(commodity.getIsAuction()==1){
+
             }
         }
     }
