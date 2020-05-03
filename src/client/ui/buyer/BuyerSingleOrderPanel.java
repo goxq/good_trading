@@ -1,6 +1,6 @@
 package client.ui.buyer;
 
-import client.CScontrol;
+import client.tool.CScontrol;
 import client.chat.tools.ManageChatWindow;
 import client.chat.view.ChatWindow;
 import client.ui.MainPage;
@@ -8,9 +8,7 @@ import client.ui.component.GButton;
 import client.ui.util.FontConfig;
 import client.ui.util.GBC;
 import client.ui.util.MyColor;
-import client.utils.CodecUtil;
 import common.entity.Comment;
-import common.entity.Commodity;
 import common.entity.Order;
 
 import javax.swing.*;

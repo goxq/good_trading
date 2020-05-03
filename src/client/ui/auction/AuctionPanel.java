@@ -1,6 +1,6 @@
 package client.ui.auction;
 
-import client.CScontrol;
+import client.tool.CScontrol;
 import client.chat.tools.ManageChatWindow;
 import client.chat.view.ChatWindow;
 import client.ui.MainPage;
@@ -13,16 +13,12 @@ import client.ui.util.GBC;
 import client.ui.util.MyColor;
 import client.utils.CodecUtil;
 import common.entity.Auction;
-import common.entity.Comment;
 import common.entity.Commodity;
-import common.entity.Order;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;

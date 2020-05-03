@@ -1,4 +1,4 @@
-package client;
+package client.tool;
 
 import com.mysql.cj.xdevapi.JsonString;
 import common.entity.*;

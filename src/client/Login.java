@@ -1,19 +1,19 @@
-package client.ui.user;
+package client;
 
 import client.ui.MainPage;
 import client.ui.component.GPasswordField;
 import client.ui.component.GTextField;
+import client.ui.user.Register;
 import client.ui.util.FontConfig;
 import common.entity.User;
 
-import client.CScontrol;
+import client.tool.CScontrol;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.Arrays;
 
 
 public class Login extends JFrame implements ActionListener {

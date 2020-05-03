@@ -1,6 +1,6 @@
 package client.ui;
 
-import client.CScontrol;
+import client.tool.CScontrol;
 import client.chat.model.QqClientUser;
 import client.chat.tools.ClientConServerThread;
 import client.chat.tools.ManageChatWindow;

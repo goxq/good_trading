@@ -1,33 +1,23 @@
 package client.ui.buyer;
 
-import client.CScontrol;
-import client.chat.model.QqClientUser;
-import client.chat.tools.ClientConServerThread;
+import client.tool.CScontrol;
 import client.chat.tools.ManageChatWindow;
-import client.chat.tools.ManageFriendList;
 import client.chat.view.ChatWindow;
-import client.chat.view.FriendList;
 import client.ui.MainPage;
 import client.ui.util.FontConfig;
 import client.utils.CodecUtil;
 import client.ui.component.GButton;
 import client.ui.util.GBC;
 import client.ui.util.MyColor;
-import client.utils.ManageCommodity;
-import common.chat.Message;
-import common.chat.MessageType;
 import common.entity.Comment;
 import common.entity.Commodity;
 import common.entity.Order;
-import common.entity.User;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.ObjectOutputStream;
 import java.util.List;
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 

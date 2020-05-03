@@ -1,6 +1,5 @@
 package client.ui.seller;
 
-import client.CScontrol;
 import client.chat.tools.ManageChatWindow;
 import client.chat.view.ChatWindow;
 import client.ui.MainPage;
@@ -16,7 +15,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 public class SellerSingleOrderPanel extends JPanel implements ActionListener {

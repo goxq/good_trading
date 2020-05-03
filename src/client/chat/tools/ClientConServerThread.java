@@ -2,7 +2,6 @@ package client.chat.tools;
 
 
 import client.chat.view.ChatWindow;
-import client.chat.view.FriendList;
 import common.chat.Message;
 import common.chat.MessageType;
 

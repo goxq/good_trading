@@ -1,12 +1,11 @@
-package server.chat.model;
+package server;
 
 import common.chat.Message;
 import common.entity.User;
+import server.chat.model.ManageClientThread;
+import server.chat.model.ServerConClientThread;
 
 
-import javax.management.MalformedObjectNameException;
-import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;

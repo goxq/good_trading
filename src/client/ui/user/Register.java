@@ -1,6 +1,7 @@
 package client.ui.user;
 
-import client.CScontrol;
+import client.Login;
+import client.tool.CScontrol;
 import client.ui.MainPage;
 import client.ui.component.GPasswordField;
 import client.ui.component.GTextField;
@@ -47,6 +48,15 @@ public class Register extends JFrame implements ActionListener{
         userText.setBounds(105, 30, 165, 25);
         panel.add(userText);
         passText.setBounds(105, 60, 165, 25);
+        passText.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    Register.this.register(userText.getText(), String.valueOf(passText.getPassword()));
+                }
+            }
+        });
         panel.add(passText);
 
 //        loginButton.setBounds(25, 100, 80, 25);

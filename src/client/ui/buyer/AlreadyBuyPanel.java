@@ -1,6 +1,6 @@
 package client.ui.buyer;
 
-import client.CScontrol;
+import client.tool.CScontrol;
 import client.ui.MainPage;
 import client.ui.component.GGoodsLabel;
 import client.ui.component.GListBackPanel;

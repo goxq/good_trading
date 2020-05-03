@@ -1,6 +1,6 @@
 package client.ui.seller;
 
-import client.CScontrol;
+import client.tool.CScontrol;
 import client.ui.MainPage;
 import client.utils.CodecUtil;
 import client.ui.component.GButton;

@@ -8,7 +8,6 @@ package client.chat.view;
 import client.chat.tools.ClientConServerThread;
 import client.ui.MainPage;
 import client.ui.component.GButton;
-import client.ui.user.Login;
 import client.ui.util.FontConfig;
 import client.ui.util.MyColor;
 import common.chat.Message;
@@ -20,7 +19,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 
 public class ChatWindow extends JFrame implements ActionListener{
