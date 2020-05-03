@@ -9,6 +9,9 @@ public class ManageClientThread {
     public static void addClientThread(String uid,ServerConClientThread ct){
         hm.put(uid,ct);
     }
+    public static void deleteClientThread(String uid){
+        hm.remove(uid);
+    }
     public static ServerConClientThread getClientThread(String uid){
         return (ServerConClientThread)hm.get(uid);
     }

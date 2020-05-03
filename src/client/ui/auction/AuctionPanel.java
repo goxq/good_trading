@@ -1,6 +1,8 @@
 package client.ui.auction;
 
 import client.CScontrol;
+import client.chat.tools.ManageChatWindow;
+import client.chat.view.ChatWindow;
 import client.ui.MainPage;
 import client.ui.component.GButton;
 import client.ui.component.GGoodsLabel;
@@ -79,6 +81,8 @@ public class AuctionPanel extends JPanel implements ActionListener {
         auctionButton.setActionCommand("auctionButton");
         auctionButton.setFont(new Font("微软雅黑", Font.BOLD, 20));
         GButton chatButton = new GButton("联系卖家");
+        chatButton.addActionListener(this);
+        chatButton.setActionCommand("chatButton");
         chatButton.setFont(new Font("微软雅黑", Font.BOLD, 20));
         auctionButton.setPreferredSize(new Dimension(255, 20));
         chatButton.setPreferredSize(new Dimension(255, 20));
@@ -156,6 +160,9 @@ public class AuctionPanel extends JPanel implements ActionListener {
                     }
                 }
             }
+        }else if(e.getActionCommand().equals("chatButton")){
+            ChatWindow chatWindow = ManageChatWindow.getChatWindow(mainPage.getUserId()+" "+commodity.getUserID());
+            chatWindow.setVisible(true);
         }
     }
 

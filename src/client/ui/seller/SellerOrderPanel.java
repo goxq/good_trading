@@ -1,17 +1,16 @@
 /*
 已发布中已卖出的商品点进去显示的界面
  */
-package client.ui;
+package client.ui.seller;
 
 import client.CScontrol;
+import client.ui.MainPage;
 import client.ui.component.GButton;
 import client.ui.component.GGoodsLabel;
 import client.ui.component.GListBackPanel;
-import client.ui.util.FontConfig;
 import client.ui.util.MyColor;
 import common.entity.Commodity;
 import common.entity.Order;
-import common.entity.User;
 
 import javax.swing.*;
 import java.awt.*;

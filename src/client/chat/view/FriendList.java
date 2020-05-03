@@ -26,8 +26,6 @@ public class FriendList extends JFrame implements MouseListener {
         super(userID);
         this.myUserID = userID;
         jphy_jb1 = new JButton("我的好友");
-        jphy_jb2 = new JButton("先放这");
-        jphy_jb3 = new JButton("先放这2");
         jphy1 = new JPanel(new BorderLayout());
         jphy2 = new JPanel(new GridLayout(50,1,4,4));
         jphy3 = new JPanel(new GridLayout(2,1));
@@ -46,19 +44,15 @@ public class FriendList extends JFrame implements MouseListener {
             jphy2.add(jbls[i]);
         }
 
-
-        jphy3.add(jphy_jb2);
-        jphy3.add(jphy_jb3);
-
-
         jsp1 = new JScrollPane(jphy2);
 
         jphy1.add(jphy_jb1,BorderLayout.NORTH);
         jphy1.add(jsp1,BorderLayout.CENTER);
         jphy1.add(jphy3,BorderLayout.SOUTH);
         this.add(jphy1,BorderLayout.CENTER);
-        this.setSize(190,400);
+        this.setSize(300,400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
         setVisible(true);
     }
 
@@ -72,10 +66,10 @@ public class FriendList extends JFrame implements MouseListener {
         if(e.getClickCount()==2){
             //得到该好友的编号
             String getter = ((JLabel)e.getSource()).getText();
-            ChatWindow cw = new ChatWindow(myUserID,getter);
+//            ChatWindow cw = new ChatWindow(myUserID,getter);
 
             //把聊天界面加入到管理类中
-            ManageChatWindow.addChatWindow(this.myUserID+" "+getter,cw);
+//            ManageChatWindow.addChatWindow(this.myUserID+" "+getter,cw);
         }
     }
 

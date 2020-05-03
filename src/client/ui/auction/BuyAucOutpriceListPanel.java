@@ -37,7 +37,7 @@ public class BuyAucOutpriceListPanel extends JPanel {
         if (length == 0) {
             auctionListPanel = new JPanel(new BorderLayout());
             JLabel txt = new JLabel("你目前还没有参与拍卖哦", JLabel.CENTER);
-            txt.setFont(FontConfig.font3);
+            txt.setFont(FontConfig.font1);
             auctionListPanel.add(txt, BorderLayout.CENTER);
         } else {
             auctionListPanel = new JPanel(new GridLayout(length, 1, 0, 5));

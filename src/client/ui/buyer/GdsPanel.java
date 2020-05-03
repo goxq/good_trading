@@ -1,6 +1,7 @@
-package client.ui;
+package client.ui.buyer;
 
 import client.CScontrol;
+import client.ui.MainPage;
 import client.ui.auction.AuctionPanel;
 import client.ui.component.GGoodsLabel;
 import client.ui.component.GListBackPanel;

@@ -1,7 +1,7 @@
 package client.ui.component;
 
 import client.CScontrol;
-import client.ui.GdsPanel;
+import client.ui.buyer.GdsPanel;
 import client.ui.MainPage;
 import client.ui.util.FontConfig;
 import client.ui.util.MyColor;

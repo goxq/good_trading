@@ -1,6 +1,9 @@
-package client.ui;
+package client.ui.seller;
 
 import client.CScontrol;
+import client.chat.tools.ManageChatWindow;
+import client.chat.view.ChatWindow;
+import client.ui.MainPage;
 import client.ui.component.GButton;
 import client.ui.util.FontConfig;
 import client.ui.util.GBC;
@@ -69,6 +72,8 @@ public class SellerSingleOrderPanel extends JPanel implements ActionListener {
         GButton buyButton = new GButton("买家已下单，请联系约定交易");
         buyButton.setFont(new Font("微软雅黑", Font.BOLD, 20));
         GButton chatButton = new GButton("联系买家");
+        chatButton.addActionListener(this);
+        chatButton.setActionCommand("chatButton");
         chatButton.setFont(new Font("微软雅黑", Font.BOLD, 20));
         buyButton.setPreferredSize(new Dimension(300, 20));
         chatButton.setPreferredSize(new Dimension(215, 20));
@@ -149,7 +154,10 @@ public class SellerSingleOrderPanel extends JPanel implements ActionListener {
     }
     @Override
     public void actionPerformed(ActionEvent e) {
-
+        if(e.getActionCommand().equals("chatButton")){
+            ChatWindow chatWindow = ManageChatWindow.getChatWindow(mainPage.getUserId()+" "+ order.getBuyerID());
+            chatWindow.setVisible(true);
+        }
     }
 
     @Override

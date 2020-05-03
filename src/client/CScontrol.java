@@ -500,4 +500,11 @@ public class CScontrol {
         oos.writeObject(order);
         return dis.readInt();
     }
+    public static List<Order> getOrdersByDate(String seller, int days) throws Exception{
+        sendCommand("getOrdersByDate");
+        dos.writeInt(days);
+        dos.writeUTF(seller);
+        ObjectInputStream ois = new ObjectInputStream(is);
+        return (List<Order>)ois.readObject();
+    }
 }

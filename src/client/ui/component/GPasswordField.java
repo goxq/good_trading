@@ -4,34 +4,28 @@ import client.ui.util.MyColor;
 
 import javax.accessibility.AccessibleContext;
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.beans.PropertyChangeListener;
 
-public class GTextField extends JTextField implements MouseListener {
+public class GPasswordField extends JPasswordField implements MouseListener {
     Color border_color = MyColor.BLUE_A700;
-    public GTextField(String text, int width, int height) {
+    public GPasswordField(String text, int width, int height) {
         super(text, width);
         this.setOpaque(false);
-
         this.setFont(new Font("微软雅黑", Font.PLAIN,15));
         this.setForeground(MyColor.WHITE);
         this.setPreferredSize(new Dimension(0,height));
         this.addMouseListener(this);
     }
-    public GTextField(int width, int height) {
+    public GPasswordField(int width, int height) {
         super(width);
         this.setOpaque(false);
         this.setFont(new Font("微软雅黑", Font.PLAIN,15));
         this.setPreferredSize(new Dimension(0,height));
         this.addMouseListener(this);
-    }
-
-    public GTextField(Document doc, String text, int columns) {
-        super(doc, text, columns);
     }
 
     @Override
@@ -46,7 +40,6 @@ public class GTextField extends JTextField implements MouseListener {
         this.setText("");
         this.setForeground(MyColor.BLACK);
     }
-
     @Override
     public void mousePressed(MouseEvent e) {
 

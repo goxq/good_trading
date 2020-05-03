@@ -76,6 +76,8 @@ public class ServeOne implements Runnable {
                     this.getNumsWithComIdInAuc();
                 else if(command.equals("auctionSell"))
                     this.auctionSell();
+                else if(command.equals("getOrdersByDate"))
+                    this.getOrdersByDate();
             }
         } catch (SocketException e) {
             System.out.println("连接 " + clientIP + " 已退出");
@@ -564,6 +566,13 @@ public class ServeOne implements Runnable {
             new DbHandle(new DbConnect().getConnection()).setIsSoldInAucTrue(order.getCommodityID());
             dos.writeInt(1);
         }
+    }
+    public void getOrdersByDate() throws Exception{
+        int days = dis.readInt();
+        String seller = dis.readUTF(dis);
+        List<Order> orders = new DbHandle(new DbConnect().getConnection()).getOrdersByDate(seller,days);
+        ObjectOutputStream oos = new ObjectOutputStream(os);
+        oos.writeObject(orders);
     }
 }
 

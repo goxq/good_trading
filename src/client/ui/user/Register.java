@@ -1,37 +1,40 @@
-package client.ui.old;
+package client.ui.user;
 
 import client.CScontrol;
 import client.ui.MainPage;
+import client.ui.component.GPasswordField;
+import client.ui.component.GTextField;
+import client.ui.util.FontConfig;
 import common.entity.User;
 
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 
-public class Register_old extends JFrame implements ActionListener {
+public class Register extends JFrame implements ActionListener{
     JTextField userText;
     JPasswordField passText;
 
     JButton registerButton;
-    String username,password;
     User userOfRegister;//注册成功的时候new一个User，传给MainPage
 
-    public Register_old(){
+    public Register() throws Exception{
         super("注册");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         setSize(300, 200);
         setLocationRelativeTo(null);
         setResizable(false);
         JPanel panel = new JPanel();
         add(panel);
         JLabel userLabel = new JLabel("用户名");
-        userText = new JTextField();
+        userLabel.setFont(FontConfig.font3);
+        userText = new GTextField(20,40);
         JLabel passLabel = new JLabel("密码");
-        passText = new JPasswordField(20);
-//        loginButton = new JButton("登录");
-//        loginButton.addActionListener(this);
+        passLabel.setFont(FontConfig.font3);
+        passText = new GPasswordField(20,40);
         registerButton = new JButton("注册");
+        registerButton.setFont(FontConfig.font3);
         registerButton.addActionListener(this);
         registerButton.setActionCommand("registerButton");
         panel.setLayout(null);
@@ -50,29 +53,25 @@ public class Register_old extends JFrame implements ActionListener {
 //        panel.add(loginButton);
         registerButton.setBounds(110, 100, 80, 25);
         panel.add(registerButton);
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                try {
+                    new Login();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+                Register.this.dispose();
+            }
+        });
         setVisible(true);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getActionCommand().equals("registerButton")){
-            username = userText.getText();
-            password= passText.getText();
-            if(username.equals("")||password.equals("")){
-                JOptionPane.showMessageDialog(this, "请输入用户名或密码！");
-                return;
-            }
-            if(isUsernameLetter(username)){
-                if(isPasswordRight(password))
-                    //连接服务器注册
-                    register();
-                else
-                    JOptionPane.showMessageDialog(this, "请输入6-12位密码，并且要包含数字和字母");
-            }
-            else {
-                JOptionPane.showMessageDialog(this, "请输入1-8位用户名，至少含有一位字母，不能含有特殊字符！");
-                return;
-            }
+           this.register(userText.getText(), String.valueOf(passText.getPassword()));
         }
     }
     //确保用户名至少含有字母，而且只能包含字母或数字，且1-8位
@@ -102,10 +101,27 @@ public class Register_old extends JFrame implements ActionListener {
         return isDigit && isLetter && str.matches(regex);
     }
 
-    public void register(){
+    public void register(String username, String password){
+        System.out.println(username);
+        System.out.println(password);
+        if(username.equals("")||password.equals("")){
+            JOptionPane.showMessageDialog(this, "请输入用户名或密码！");
+            return;
+        }
+        if(isUsernameLetter(username)){
+            if(isPasswordRight(password))
+                //连接服务器注册
+                registerToServer(username,password);
+            else
+                JOptionPane.showMessageDialog(this, "请输入6-12位密码，并且要包含数字和字母");
+        }
+        else {
+            JOptionPane.showMessageDialog(this, "请输入只含有字母或字母数字的1-8位用户名");
+        }
+    }
+    public void registerToServer(String username, String password){
 
         try{
-
             int result = CScontrol.registerToServer(username,password);
             if(result==0){
                 JOptionPane.showMessageDialog(this, "用户已存在！");
@@ -126,8 +142,8 @@ public class Register_old extends JFrame implements ActionListener {
 
     }
 
-    public static void main(String[] args) {
-        new Register_old();
+    public static void main(String[] args) throws Exception {
+        new Register();
     }
 
 }
